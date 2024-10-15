@@ -53,6 +53,9 @@ const App: React.FC = () => {
               <Link to="/profile" style={{ color: '#fff', textDecoration: 'none', marginRight: '10px' }}>
                 Profile
               </Link>
+              <Link to="/admin" style={{ color: '#fff', textDecoration: 'none' }}>
+                Admin
+              </Link>
               <Link to="/about" style={{ color: '#fff', textDecoration: 'none' }}>
                 About
               </Link>
