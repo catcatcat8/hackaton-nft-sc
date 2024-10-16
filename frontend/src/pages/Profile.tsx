@@ -1,10 +1,10 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { TextField, Button, Typography, Box } from '@mui/material'
 import { useAppContext } from '../context/AppContext'
 import * as Yup from 'yup'
 import { ethers } from 'ethers'
 import * as isIPFS from 'is-ipfs'
-import { NFT_CONTRACT, PINATA_JWT, PINATE_GATEWAY, SCANNER_LINK } from '../constants'
+import { IPFS_BASE_LINK, NFT_CONTRACT, PINATA, SCANNER_LINK } from '../constants'
 import { Field, Form, Formik } from 'formik'
 import axios from 'axios'
 import { PinataSDK } from 'pinata-web3'
@@ -31,6 +31,14 @@ const Profile: React.FC = () => {
     isAdmin,
     signer,
   } = useAppContext()
+
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+
+  const changeHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files) {
+      setSelectedFile(event.target.files[0]);
+    }
+  };
 
   const initialValues: IMainNFTForm = {
     walletAddr: '',
@@ -73,6 +81,11 @@ const Profile: React.FC = () => {
       return
     }
 
+    if (!selectedFile) {
+      alert('NO IMAGE TO UPLOAD')
+      return
+    }
+
     // if (!ethers.utils.isAddress(values.walletAddr)) {
     //   alert('WTF? ITS NOT ETH ADDR')
     //   return
@@ -84,26 +97,10 @@ const Profile: React.FC = () => {
     console.log(0);
 
     try {
-      const pinata = new PinataSDK({
-        pinataJwt: PINATA_JWT,
-        pinataGateway: PINATE_GATEWAY
-      })
-      console.log(PINATA_JWT, PINATE_GATEWAY);
-      
-      console.log(1);
-      
-
-      const fileName = 'man_picture.jpg'
-      console.log(2);
-
-      const blob = new Blob([manPicture], {type: "image/jpeg"});
-      console.log(3);
-      const file = new File([blob], fileName, { type: "image/jpeg"})
-      console.log(4);
-      const upload = await pinata.upload.file(file)
+      const upload = await PINATA.upload.file(selectedFile)
       console.log(5);
 
-      alert(`hash загруженной на ипфс картинки ${upload.IpfsHash}`)
+      alert(`hash загруженной на ипфс картинки ${IPFS_BASE_LINK + upload.IpfsHash}`)
     } catch (error) {
       alert('IPFS ERROR :(')
     }
@@ -226,6 +223,8 @@ const Profile: React.FC = () => {
                   rows={4}
                   margin="normal"
                 />
+                <label className="form-label"> Choose Image </label>
+                <input type="file" onChange={changeHandler} />
                 <Button
                   type="submit"
                   variant="contained"

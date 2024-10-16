@@ -3,6 +3,7 @@ import detectEthereumProvider from '@metamask/detect-provider'
 import { JsonRpcSigner, Network, Web3Provider } from '@ethersproject/providers'
 import { ALLOWED_CHAIN_ID, NFT_CONTRACT } from '../constants'
 import { BigNumber } from 'ethers'
+import { checkIsAdmin } from '../contractFuncs'
 
 // Define types for the context state
 interface AppContextProps {
@@ -105,42 +106,6 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     const accounts: string[] = await provider.send('eth_accounts', [])
     setAccount(accounts[0])
     return accounts
-  }
-
-  const checkIsAdmin = async (user: string): Promise<boolean> => {
-    const adminRole = await NFT_CONTRACT.ADMIN_ROLE()
-    return await NFT_CONTRACT.hasRole(adminRole, user)
-  }
-
-  const getUserNftUris = async (user: string): Promise<string[]> => {
-    const userBalance = await NFT_CONTRACT.balanceOf(user)
-    if (userBalance == BigNumber.from(0)) {
-      return []
-    }
-
-    const userNftIds = await NFT_CONTRACT.getIdsSliceByHolder(
-      user,
-      0,
-      userBalance
-    )
-    const uris = await NFT_CONTRACT.getURIs(userNftIds)
-    return uris
-  }
-
-  interface INFTMetadata {
-    owner: string,
-    tokenId: BigNumber,
-    tokenUri: string
-  }
-
-  const getAllNftsInfo = async(): Promise<INFTMetadata[]> => {
-    const nftCount = await NFT_CONTRACT.counter()
-    if (nftCount == BigNumber.from(0)) {
-      return []
-    }
-
-    const metadata = await NFT_CONTRACT.getAllURIsInfo(0, nftCount)
-    return metadata
   }
 
   // Check if MetaMask is connected on app load
