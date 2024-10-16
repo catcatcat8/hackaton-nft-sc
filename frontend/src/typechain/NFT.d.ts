@@ -29,6 +29,7 @@ interface NFTInterface extends ethers.utils.Interface {
     "burn(uint256)": FunctionFragment;
     "changeBaseUri(string)": FunctionFragment;
     "counter()": FunctionFragment;
+    "getAllURIsInfo(uint256,uint256)": FunctionFragment;
     "getApproved(uint256)": FunctionFragment;
     "getIdsSliceByHolder(address,uint256,uint256)": FunctionFragment;
     "getRoleAdmin(bytes32)": FunctionFragment;
@@ -69,6 +70,10 @@ interface NFTInterface extends ethers.utils.Interface {
     values: [string]
   ): string;
   encodeFunctionData(functionFragment: "counter", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "getAllURIsInfo",
+    values: [BigNumberish, BigNumberish]
+  ): string;
   encodeFunctionData(
     functionFragment: "getApproved",
     values: [BigNumberish]
@@ -150,6 +155,10 @@ interface NFTInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "counter", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "getAllURIsInfo",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "getApproved",
     data: BytesLike
@@ -335,6 +344,20 @@ export class NFT extends BaseContract {
 
     counter(overrides?: CallOverrides): Promise<[BigNumber]>;
 
+    getAllURIsInfo(
+      offset: BigNumberish,
+      limit: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<
+      [
+        ([BigNumber, string, string] & {
+          tokenId: BigNumber;
+          owner: string;
+          tokenUri: string;
+        })[]
+      ]
+    >;
+
     getApproved(
       tokenId: BigNumberish,
       overrides?: CallOverrides
@@ -464,6 +487,18 @@ export class NFT extends BaseContract {
 
   counter(overrides?: CallOverrides): Promise<BigNumber>;
 
+  getAllURIsInfo(
+    offset: BigNumberish,
+    limit: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<
+    ([BigNumber, string, string] & {
+      tokenId: BigNumber;
+      owner: string;
+      tokenUri: string;
+    })[]
+  >;
+
   getApproved(
     tokenId: BigNumberish,
     overrides?: CallOverrides
@@ -577,6 +612,18 @@ export class NFT extends BaseContract {
     changeBaseUri(baseUri_: string, overrides?: CallOverrides): Promise<void>;
 
     counter(overrides?: CallOverrides): Promise<BigNumber>;
+
+    getAllURIsInfo(
+      offset: BigNumberish,
+      limit: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<
+      ([BigNumber, string, string] & {
+        tokenId: BigNumber;
+        owner: string;
+        tokenUri: string;
+      })[]
+    >;
 
     getApproved(
       tokenId: BigNumberish,
@@ -841,6 +888,12 @@ export class NFT extends BaseContract {
 
     counter(overrides?: CallOverrides): Promise<BigNumber>;
 
+    getAllURIsInfo(
+      offset: BigNumberish,
+      limit: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     getApproved(
       tokenId: BigNumberish,
       overrides?: CallOverrides
@@ -975,6 +1028,12 @@ export class NFT extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     counter(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    getAllURIsInfo(
+      offset: BigNumberish,
+      limit: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
     getApproved(
       tokenId: BigNumberish,

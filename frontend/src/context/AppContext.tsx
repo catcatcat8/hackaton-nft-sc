@@ -1,25 +1,25 @@
-import React, { createContext, useState, useEffect, ReactNode } from 'react';
-import detectEthereumProvider from '@metamask/detect-provider';
-import { JsonRpcSigner, Network, Web3Provider } from '@ethersproject/providers';
-import { ALLOWED_CHAIN_ID, NFT_CONTRACT } from '../constants';
+import React, { createContext, useState, useEffect, ReactNode } from 'react'
+import detectEthereumProvider from '@metamask/detect-provider'
+import { JsonRpcSigner, Network, Web3Provider } from '@ethersproject/providers'
+import { ALLOWED_CHAIN_ID, NFT_CONTRACT } from '../constants'
+import { BigNumber } from 'ethers'
 
 // Define types for the context state
 interface AppContextProps {
-  account: string | null;
-  connectWallet: () => Promise<void>;
-  name: string;
-  setName: (name: string) => void;
-  email: string;
-  setEmail: (email: string) => void;
-  bio: string;
-  setBio: (bio: string) => void;
-  signer: JsonRpcSigner | null;
-  setSigner: (signer : JsonRpcSigner) => void;
-  network: Network | null;
-  setNetwork: (network: Network)=> void;
-  isAdmin: boolean | null;
-  setIsAdmin: (isAdmin: boolean)=> void;
-
+  account: string | null
+  connectWallet: () => Promise<void>
+  name: string
+  setName: (name: string) => void
+  email: string
+  setEmail: (email: string) => void
+  bio: string
+  setBio: (bio: string) => void
+  signer: JsonRpcSigner | null
+  setSigner: (signer: JsonRpcSigner) => void
+  network: Network | null
+  setNetwork: (network: Network) => void
+  isAdmin: boolean | null
+  setIsAdmin: (isAdmin: boolean) => void
 }
 
 // Create the context with default values
@@ -37,18 +37,18 @@ const AppContext = createContext<AppContextProps>({
   network: null,
   setNetwork: () => {},
   isAdmin: null,
-  setIsAdmin: () =>{}
-});
+  setIsAdmin: () => {},
+})
 
 interface AppProviderProps {
-  children: ReactNode;
+  children: ReactNode
 }
 
 export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
-  const [account, setAccount] = useState<string | null>(null);
-  const [name, setName] = useState<string>('');
-  const [email, setEmail] = useState<string>('');
-  const [bio, setBio] = useState<string>('');
+  const [account, setAccount] = useState<string | null>(null)
+  const [name, setName] = useState<string>('')
+  const [email, setEmail] = useState<string>('')
+  const [bio, setBio] = useState<string>('')
 
   const [provider, setProvider] = useState<Web3Provider | null>(null)
   const [signer, setSigner] = useState<JsonRpcSigner | null>(null)
@@ -60,8 +60,8 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     if (provider) return provider
 
     const newProvider = new Web3Provider(window.ethereum)
-    console.log(newProvider);
-    
+    console.log(newProvider)
+
     setProvider(newProvider)
 
     return newProvider
@@ -112,21 +112,52 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     return await NFT_CONTRACT.hasRole(adminRole, user)
   }
 
+  const getUserNftUris = async (user: string): Promise<string[]> => {
+    const userBalance = await NFT_CONTRACT.balanceOf(user)
+    if (userBalance == BigNumber.from(0)) {
+      return []
+    }
+
+    const userNftIds = await NFT_CONTRACT.getIdsSliceByHolder(
+      user,
+      0,
+      userBalance
+    )
+    const uris = await NFT_CONTRACT.getURIs(userNftIds)
+    return uris
+  }
+
+  interface INFTMetadata {
+    owner: string,
+    tokenId: BigNumber,
+    tokenUri: string
+  }
+
+  const getAllNftsInfo = async(): Promise<INFTMetadata[]> => {
+    const nftCount = await NFT_CONTRACT.counter()
+    if (nftCount == BigNumber.from(0)) {
+      return []
+    }
+
+    const metadata = await NFT_CONTRACT.getAllURIsInfo(0, nftCount)
+    return metadata
+  }
+
   // Check if MetaMask is connected on app load
   useEffect(() => {
     const checkConnection = async () => {
-        const provider = setupProvider()
-        if (provider) {
-        const accounts = await provider.send('eth_accounts', []);
+      const provider = setupProvider()
+      if (provider) {
+        const accounts = await provider.send('eth_accounts', [])
         if (accounts.length > 0) {
           if (accounts.length > 0) {
-            setAccount(accounts[0]);
+            setAccount(accounts[0])
           }
           const signer: JsonRpcSigner = await provider.getSigner()
           const network: Network = await provider.getNetwork()
-  
+
           setNetwork(network)
-  
+
           if (network.chainId != ALLOWED_CHAIN_ID) {
             try {
               await provider.send('wallet_switchEthereumChain', [
@@ -147,22 +178,18 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
               ])
             }
           }
-  
-  
+
           setAccount(accounts[0])
           setSigner(signer)
-      
+
           const isAdmin = await checkIsAdmin(accounts[0])
           setIsAdmin(isAdmin)
-        } 
+        }
       }
+    }
 
-    };
-
-  
-
-    checkConnection();
-  }, []);
+    checkConnection()
+  }, [])
 
   return (
     <AppContext.Provider
@@ -175,15 +202,18 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
         setEmail,
         bio,
         setBio,
-        signer, setSigner,
-        network, setNetwork,
-        isAdmin, setIsAdmin
+        signer,
+        setSigner,
+        network,
+        setNetwork,
+        isAdmin,
+        setIsAdmin,
       }}
     >
       {children}
     </AppContext.Provider>
-  );
-};
+  )
+}
 
 // Export the useContext hook for easy usage
-export const useAppContext = () => React.useContext(AppContext);
+export const useAppContext = () => React.useContext(AppContext)
