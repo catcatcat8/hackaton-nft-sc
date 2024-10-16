@@ -1,30 +1,71 @@
-import React from 'react';
-import { TextField, Button, Typography, Box } from '@mui/material';
-import { Formik, Form, Field } from 'formik';
-import * as Yup from 'yup';
+import React from 'react'
+import { TextField, Button, Typography, Box } from '@mui/material'
+import { Formik, Form, Field } from 'formik'
+import * as Yup from 'yup'
+import { ethers } from 'ethers'
+import { NFT_CONTRACT, SCANNER_LINK } from '../constants'
+import * as isIPFS from 'is-ipfs'
 
 interface ProfileProps {
-  account: string | null;
+  account: string | null
+  signer: ethers.Signer | null
+  isAdmin: boolean | null
 }
 
 // Validation schema using Yup
 const validationSchema = Yup.object({
-  name: Yup.string().required('Name is required'),
-  email: Yup.string().email('Invalid email format').required('Email is required'),
-  bio: Yup.string(),
-});
+  walletAddr: Yup.string().required('Worker wallet is required'),
+  ipfsLink: Yup.string().required('Email is required'),
+})
 
-const Profile: React.FC<ProfileProps> = ({ account }) => {
+function validateWallet(wallet: string) {
+  let error;
+  if (!ethers.utils.isAddress(wallet)) {
+    error = 'Invalid wallet address';
+  }
+  return error;
+}
+
+function validateIpfs(ipfs: string) {
+  let error;
+  if (!isIPFS.cid(ipfs)) {
+    error = 'Invalid IPFS link';
+  }
+  return error;
+}
+
+const Profile: React.FC<ProfileProps> = ({ account, signer, isAdmin }) => {
   const initialValues = {
-    name: '',
-    email: '',
-    bio: '',
-  };
+    walletAddr: '',
+    ipfsLink: '',
+  }
 
-  const handleSubmit = (values: any) => {
-    console.log('Form Submitted:', values);
+  const handleSubmit = async (values: any) => {
+    if (!isAdmin) {
+      alert('NOT ADMIN!')
+      return
+    }
+    // if (!ethers.utils.isAddress(values.walletAddr)) {
+    //   alert('WTF? ITS NOT ETH ADDR')
+    //   return
+    // }
+    // if (!isIPFS.cid(values.ipfsLink)) {
+    //   alert('WTF? NOT IPFS LINK')
+    //   return
+    // }
+    try {
+      const tx = await NFT_CONTRACT.connect(signer!).mint(
+        values.walletAddr,
+        values.ipfsLink
+      )
+      await tx.wait()
+      alert(`SUCCESS: ${SCANNER_LINK + tx.hash}`)
+    } catch (error) {
+      alert('WHY REJECT??')
+    }
+    console.log('Form Submitted:', values)
     // Further logic (e.g., sending data to blockchain or backend)
-  };
+  }
 
   return (
     <Box sx={{ maxWidth: '500px', margin: '0 auto' }}>
@@ -45,46 +86,57 @@ const Profile: React.FC<ProfileProps> = ({ account }) => {
               <Form>
                 <Field
                   as={TextField}
-                  name="name"
-                  label="Name"
+                  name="walletAddr"
+                  label="Worker address"
                   fullWidth
                   margin="normal"
-                  error={touched.name && !!errors.name}
-                  helperText={touched.name && errors.name}
+                  validate={validateWallet}
+                  error={touched.walletAddr && !!errors.walletAddr}
+                  helperText={touched.walletAddr && errors.walletAddr}
                   required
                 />
-                <Field
+                {/* <Field
                   as={TextField}
-                  name="email"
-                  label="Email"
+                  name="ipfsLink"
+                  label="IPFS metadata link"
                   type="email"
                   fullWidth
                   margin="normal"
-                  error={touched.email && !!errors.email}
-                  helperText={touched.email && errors.email}
+                  // error={touched.ipfsLink && !!errors.ipfsLink}
+                  // helperText={touched.ipfsLink && errors.ipfsLink}
                   required
-                />
+                /> */}
                 <Field
                   as={TextField}
-                  name="bio"
-                  label="Bio"
+                  name="ipfsLink"
+                  label="IPFS metadata link"
                   fullWidth
                   multiline
-                  rows={4}
                   margin="normal"
+                  validate={validateIpfs}
+                  error={touched.ipfsLink && !!errors.ipfsLink}
+                  helperText={touched.ipfsLink && errors.ipfsLink}
+                  required
                 />
-                <Button type="submit" variant="contained" color="primary" disabled={isSubmitting}>
-                  Submit
+                <Button
+                  type="submit"
+                  variant="contained"
+                  color="primary"
+                  disabled={isSubmitting}
+                >
+                  Create NFT
                 </Button>
               </Form>
             )}
           </Formik>
         </>
       ) : (
-        <Typography variant="body1">Please connect your wallet to see your profile information.</Typography>
+        <Typography variant="body1">
+          Please connect your wallet to see your profile information.
+        </Typography>
       )}
     </Box>
-  );
-};
+  )
+}
 
-export default Profile;
+export default Profile
