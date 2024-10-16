@@ -113,14 +113,50 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   // Check if MetaMask is connected on app load
   useEffect(() => {
     const checkConnection = async () => {
-      const provider: any = await detectEthereumProvider();
-      if (provider) {
-        const accounts = await provider.request({ method: 'eth_accounts' });
+        const provider = setupProvider()
+        if (provider) {
+        const accounts = await provider?.send('eth_accounts', []);
         if (accounts.length > 0) {
           setAccount(accounts[0]);
         }
+        const signer: JsonRpcSigner = await provider.getSigner()
+        const network: Network = await provider.getNetwork()
+
+        setNetwork(network)
+
+        if (network.chainId != ALLOWED_CHAIN_ID) {
+          try {
+            await provider.send('wallet_switchEthereumChain', [
+              { chainId: ALLOWED_CHAIN_ID },
+            ])
+          } catch (switchError) {
+            await provider.send('wallet_addEthereumChain', [
+              {
+                chainId: '0x61',
+                chainName: 'Smart Chain - Testnet',
+                rpcUrls: ['https://data-seed-prebsc-1-s1.binance.org:8545'],
+                blockExplorerUrls: ['https://testnet.bscscan.com'],
+                nativeCurrency: {
+                  symbol: 'BNB',
+                  decimals: 18,
+                },
+              },
+            ])
+          }
+        }
+
+
+        setAccount(accounts[0])
+        setSigner(signer)
+    
+        const isAdmin = await checkIsAdmin(accounts[0])
+        setIsAdmin(isAdmin) 
+    
       }
+
     };
+
+  
 
     checkConnection();
   }, []);
