@@ -5,6 +5,7 @@ import { useAppContext } from './context/AppContext';
 import Home from './pages/Home';
 import Profile from './pages/Profile';
 import About from './pages/About';
+import './App.css';
 
 const App: React.FC = () => {
   const { account, connectWallet, isAdmin } = useAppContext();
@@ -12,28 +13,28 @@ const App: React.FC = () => {
   return (
     <Router>
       <div>
-        <AppBar position="static">
+        <AppBar position="static" sx={{backgroundColor:'black'}}>
           <Toolbar>
-            <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-              My DApp with MetaMask
+            <Typography variant="h6" component="div" sx={{ flexGrow: 1, color:'#d79c05'}}>
+              STRUACHKA
             </Typography>
             <nav>
-              <Link to="/" style={{ color: '#fff', textDecoration: 'none', marginRight: '10px' }}>
+              <Link to="/" style={{ color: '#d79c05', textDecoration: 'none', marginRight: '10px' }}>
                 Home
               </Link>
-              {isAdmin && (  <Link to="/profile" style={{ color: '#fff', textDecoration: 'none', marginRight: '10px' }}>
+              {isAdmin && (  <Link to="/profile" style={{ color: '#d79c05', textDecoration: 'none', marginRight: '10px' }}>
                 Profile
               </Link>
             )}
             
-              <Link to="/about" style={{ color: '#fff', textDecoration: 'none' }}>
+              <Link to="/about" style={{ color: '#d79c05', textDecoration: 'none', marginRight:'15px'}}>
                 About
               </Link>
             </nav>
             {account ? (
               <Typography variant="body1">{`Connected: ${account.substring(0, 6)}...${account.substring(account.length - 4)}`}</Typography>
             ) : (
-              <Button color="inherit" onClick={connectWallet}>
+              <Button className="button" color="primary" onClick={connectWallet} variant="outlined" >
                 Connect Wallet
               </Button>
             )}
