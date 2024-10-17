@@ -1,5 +1,5 @@
 import React from 'react';
-import { Typography } from '@mui/material';
+import { Typography, Stack } from '@mui/material';
 import { useAppContext } from '../context/AppContext';
 import axios from 'axios';
 
@@ -17,17 +17,19 @@ const Home: React.FC = () => {
 
   return (
     <div>
-      <Typography variant="h4" gutterBottom>
-        Home Page
-      </Typography>
-      {account ? (
-        <Typography variant="body1">Connected Wallet: {account}</Typography>
-      ) : (
-        <Typography variant="body1">Please connect your MetaMask wallet.</Typography>
-      )}
-      <button onClick={() => onTestBackend()}>
-        KEK
-      </button>
+      <Stack paddingY={3}>
+        <Typography variant="h4" gutterBottom>
+          Start working with STRUACHKA
+        </Typography>
+        {account ? (
+          <Typography variant="body1">Connected Wallet: {account}</Typography>
+        ) : (
+          <Typography variant="body1">Please connect your MetaMask wallet.</Typography>
+        )}
+        <button onClick={() => onTestBackend()}>
+          KEK
+        </button>
+      </Stack>
     </div>
   );
 };
