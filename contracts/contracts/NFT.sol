@@ -139,10 +139,14 @@ contract NFT is ERC721URIStorage, AccessControl {
     ) external view returns (Info[] memory) {
         Info[] memory info = new Info[](limit);
         for (uint256 i = 0; i < limit; ) {
-            address owner = ownerOf(i + offset);
-            string memory uri = tokenURI(i + offset);
-
-            info[i] = Info({tokenId: i + offset, owner: owner, tokenUri: uri});
+            address owner = _ownerOf(i + offset);
+            info[i] = owner == address(0)
+                ? Info({tokenId: i + offset, owner: owner, tokenUri: ''})
+                : Info({
+                    tokenId: i + offset,
+                    owner: owner,
+                    tokenUri: tokenURI(i + offset)
+                });
 
             unchecked {
                 ++i;

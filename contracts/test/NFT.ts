@@ -100,15 +100,28 @@ describe('NFT tests', function () {
     const { nft, organization, worker } = await deployContracts()
 
     await nft.connect(organization).mint(worker.address, NFT_URI)
+    await nft.connect(organization).mint(worker.address, '1')
+    await nft.connect(organization).mint(worker.address, '2')
 
     await expect(nft.connect(worker).burn(0)).reverted
     await nft.connect(organization).burn(0)
 
     await expect(nft.ownerOf(0)).revertedWith('ERC721: invalid token ID')
-    expect(await nft.balanceOf(worker.address)).eq(0)
+    expect(await nft.balanceOf(worker.address)).eq(2)
     await expect(nft.tokenURI(0)).revertedWith('ERC721: invalid token ID')
-    await expect(nft.getIdsSliceByHolder(worker.address, 0, 1)).reverted
+    await expect(nft.getIdsSliceByHolder(worker.address, 0, 3)).reverted
     await expect(nft.getURIs([0])).revertedWith('ERC721: invalid token ID')
+
+    const allUriInfo = await nft.getAllURIsInfo(0, 3)
+    expect(allUriInfo[0].owner).eq(ethers.constants.AddressZero)
+    expect(allUriInfo[0].tokenId).eq(0)
+    expect(allUriInfo[0].tokenUri).eq('')
+    expect(allUriInfo[1].owner).eq(worker.address)
+    expect(allUriInfo[1].tokenId).eq(1)
+    expect(allUriInfo[1].tokenUri).eq(DEFAULT_BASE_URI + '1')
+    expect(allUriInfo[2].owner).eq(worker.address)
+    expect(allUriInfo[2].tokenId).eq(2)
+    expect(allUriInfo[2].tokenUri).eq(DEFAULT_BASE_URI + '2')
   })
   it('Should correctly change base URI', async function () {
     const { nft, organization, worker } = await deployContracts()
