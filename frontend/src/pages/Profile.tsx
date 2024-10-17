@@ -95,42 +95,46 @@ const Profile: React.FC = () => {
     //   return
     // }
     console.log(0);
-
+    let imageLink: string = ''
     try {
       const upload = await PINATA.upload.file(selectedFile)
       console.log(5);
-
+      imageLink = IPFS_BASE_LINK + upload.IpfsHash
       alert(`hash загруженной на ипфс картинки ${IPFS_BASE_LINK + upload.IpfsHash}`)
     } catch (error) {
       alert('IPFS ERROR :(')
+      return
     }
-    console.log(6);
-
+    
+    let responseData: any = null
     try {
-      console.log('signer', signer)
-
-      try {
-        const response = await axios.post(
-          'http://localhost:5000/api/vcCreate',
-          {}
-        )
-        // console.log('Success:', response.link);
-      } catch (error) {
-        console.error('Error vc:', error)
-      }
-
-      const tx = await NFT_CONTRACT.connect(signer!).mint(
-        values.walletAddr,
-        values.ipfsLink
+      const response = await axios.post(
+        'http://localhost:5000/api/createMainVC',
+        {imageLink: imageLink, workerAddr: values.walletAddr, skills: values.skills, jobTitle: values.jobTitle, fullName: values.fullName, dateOfHire: values.dateOfHire}
       )
-
-      await tx.wait()
-      alert(`SUCCESS: ${SCANNER_LINK + tx.hash}`)
+      responseData = response.data
+      console.log("RESP FROM BACK", response.data);
+      alert(`BACKEND SUCCESS: ${IPFS_BASE_LINK + responseData.data.ipfsHash}`)
     } catch (error) {
-      alert('WHY REJECT??')
+      alert('BACKEND ERROR')
+      return
     }
-    console.log('Form Submitted:', values)
-    // Further logic (e.g., sending data to blockchain or backend)
+
+    if (responseData) {
+      console.log("singer ti tyt?", signer, await signer?.getAddress());
+      
+      try {
+        const tx = await NFT_CONTRACT.connect(signer!).mint(
+          values.walletAddr,
+          responseData.data.ipfsHash
+        )
+        await tx.wait()
+        alert(`TX SUCCESS: ${SCANNER_LINK + tx.hash}`)
+      } catch (error) {
+        console.log(error)
+        alert('WHY REJECT??')
+      }
+    }
   }
 
   return (

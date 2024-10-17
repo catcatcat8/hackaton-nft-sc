@@ -11,7 +11,7 @@ export const ALLOWED_CHAIN_ID = 97
 export const SCANNER_LINK = 'https://testnet.bscscan.com/tx/'
 export const IPFS_BASE_LINK = 'https://ipfs.io/ipfs/'
 
-export const NFT_ADDR = '0x1b124fEaca2d852199a3F17aD249Afe2Df63E225'
+export const NFT_ADDR = '0x130a563E1d2CBe7D9fc1DCd20a291e703baff8F9'
 export const NFT_CONTRACT = NFT__factory.connect(NFT_ADDR, DEFAULT_PROVIDER)
 
 export const PINATA_JWT = process.env.REACT_APP_PINATA_JWT ?? ''
