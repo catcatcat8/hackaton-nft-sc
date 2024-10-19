@@ -31,12 +31,15 @@ interface NFTInterface extends ethers.utils.Interface {
     "counter()": FunctionFragment;
     "getAllURIsInfo(uint256,uint256)": FunctionFragment;
     "getApproved(uint256)": FunctionFragment;
+    "getHoldersCount()": FunctionFragment;
+    "getHoldersSlice(uint256,uint256)": FunctionFragment;
     "getIdsSliceByHolder(address,uint256,uint256)": FunctionFragment;
     "getRoleAdmin(bytes32)": FunctionFragment;
     "getURIs(uint256[])": FunctionFragment;
     "grantRole(bytes32,address)": FunctionFragment;
     "hasRole(bytes32,address)": FunctionFragment;
     "isApprovedForAll(address,address)": FunctionFragment;
+    "isHolder(address)": FunctionFragment;
     "mint(address,string)": FunctionFragment;
     "name()": FunctionFragment;
     "ownerOf(uint256)": FunctionFragment;
@@ -79,6 +82,14 @@ interface NFTInterface extends ethers.utils.Interface {
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
+    functionFragment: "getHoldersCount",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getHoldersSlice",
+    values: [BigNumberish, BigNumberish]
+  ): string;
+  encodeFunctionData(
     functionFragment: "getIdsSliceByHolder",
     values: [string, BigNumberish, BigNumberish]
   ): string;
@@ -102,6 +113,7 @@ interface NFTInterface extends ethers.utils.Interface {
     functionFragment: "isApprovedForAll",
     values: [string, string]
   ): string;
+  encodeFunctionData(functionFragment: "isHolder", values: [string]): string;
   encodeFunctionData(
     functionFragment: "mint",
     values: [string, string]
@@ -164,6 +176,14 @@ interface NFTInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "getHoldersCount",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getHoldersSlice",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "getIdsSliceByHolder",
     data: BytesLike
   ): Result;
@@ -178,6 +198,7 @@ interface NFTInterface extends ethers.utils.Interface {
     functionFragment: "isApprovedForAll",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "isHolder", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "mint", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "name", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "ownerOf", data: BytesLike): Result;
@@ -363,6 +384,14 @@ export class NFT extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[string]>;
 
+    getHoldersCount(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    getHoldersSlice(
+      offset: BigNumberish,
+      limit: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[string[]]>;
+
     getIdsSliceByHolder(
       holder: string,
       offset: BigNumberish,
@@ -394,6 +423,8 @@ export class NFT extends BaseContract {
       operator: string,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
+
+    isHolder(holder: string, overrides?: CallOverrides): Promise<[boolean]>;
 
     mint(
       to_: string,
@@ -504,6 +535,14 @@ export class NFT extends BaseContract {
     overrides?: CallOverrides
   ): Promise<string>;
 
+  getHoldersCount(overrides?: CallOverrides): Promise<BigNumber>;
+
+  getHoldersSlice(
+    offset: BigNumberish,
+    limit: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<string[]>;
+
   getIdsSliceByHolder(
     holder: string,
     offset: BigNumberish,
@@ -532,6 +571,8 @@ export class NFT extends BaseContract {
     operator: string,
     overrides?: CallOverrides
   ): Promise<boolean>;
+
+  isHolder(holder: string, overrides?: CallOverrides): Promise<boolean>;
 
   mint(
     to_: string,
@@ -630,6 +671,14 @@ export class NFT extends BaseContract {
       overrides?: CallOverrides
     ): Promise<string>;
 
+    getHoldersCount(overrides?: CallOverrides): Promise<BigNumber>;
+
+    getHoldersSlice(
+      offset: BigNumberish,
+      limit: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<string[]>;
+
     getIdsSliceByHolder(
       holder: string,
       offset: BigNumberish,
@@ -658,6 +707,8 @@ export class NFT extends BaseContract {
       operator: string,
       overrides?: CallOverrides
     ): Promise<boolean>;
+
+    isHolder(holder: string, overrides?: CallOverrides): Promise<boolean>;
 
     mint(
       to_: string,
@@ -899,6 +950,14 @@ export class NFT extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    getHoldersCount(overrides?: CallOverrides): Promise<BigNumber>;
+
+    getHoldersSlice(
+      offset: BigNumberish,
+      limit: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     getIdsSliceByHolder(
       holder: string,
       offset: BigNumberish,
@@ -930,6 +989,8 @@ export class NFT extends BaseContract {
       operator: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
+
+    isHolder(holder: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     mint(
       to_: string,
@@ -1040,6 +1101,14 @@ export class NFT extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    getHoldersCount(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    getHoldersSlice(
+      offset: BigNumberish,
+      limit: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     getIdsSliceByHolder(
       holder: string,
       offset: BigNumberish,
@@ -1072,6 +1141,11 @@ export class NFT extends BaseContract {
     isApprovedForAll(
       owner: string,
       operator: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    isHolder(
+      holder: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
