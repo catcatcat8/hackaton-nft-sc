@@ -1,5 +1,6 @@
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { DeployFunction } from 'hardhat-deploy/types'
+import { NFT } from '@/typechain'
 
 export const DEFAULT_COLLECTION_NAME = 'Крипто$лоня₽ы Collection'
 export const DEFAULT_COLLECTION_SYMBOL = 'KC'
@@ -10,6 +11,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deploy } = deployments
 
   const { deployer } = await getNamedAccounts()
+  const signer = await hre.ethers.getSigner(deployer)
 
   await deploy('NFT', {
     contract: 'NFT',
@@ -21,6 +23,10 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     ],
     log: true,
   })
+  const nft = await await hre.ethers.getContract<NFT>('NFT')
+
+  const adminRole = await nft.ADMIN_ROLE()
+  await nft.connect(signer).grantRole(adminRole, deployer)
 }
 export default func
 func.tags = ['NFT']

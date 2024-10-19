@@ -1,12 +1,20 @@
 import React from 'react';
 import { Typography } from '@mui/material';
+import { useAppContext } from '../context/AppContext';
+import axios from 'axios';
 
-interface HomeProps {
-  account: string | null;
-  isAdmin: boolean | null;
-}
+const Home: React.FC = () => {
+  const { account } = useAppContext();
 
-const Home: React.FC<HomeProps> = ({ account, isAdmin }) => {
+  const onTestBackend = async() => {
+    try {
+      const response = await axios.post('http://localhost:5000/api/profile', {kek: 123});
+      console.log('Profile Submitted:', response.data);
+    } catch (error) {
+      console.error('Error submitting profile:', error);
+    }
+  }
+
   return (
     <div>
       <Typography variant="h4" gutterBottom>
@@ -17,11 +25,9 @@ const Home: React.FC<HomeProps> = ({ account, isAdmin }) => {
       ) : (
         <Typography variant="body1">Please connect your MetaMask wallet.</Typography>
       )}
-      {isAdmin ? (
-        <Typography variant="body1">IT'S ADMIN, ADMIN PANEL FOR HIM</Typography>
-      ) : (
-        <Typography variant="body1">COMMON WORKER</Typography>
-      )}
+      <button onClick={() => onTestBackend()}>
+        KEK
+      </button>
     </div>
   );
 };

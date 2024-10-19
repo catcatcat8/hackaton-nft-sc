@@ -1,0 +1,43 @@
+{
+    "name": "Крипто$лоня₽ы Collection Digital Profile",
+    "image": "https://ipfs.io/ipfs/hash",
+    "description": "Metadata of a company employee's digital profile.",
+    "vc": {
+        "type": [
+            "VerifiableCredential" // static
+        ],
+        "issuer": {
+            "id": "did:ethr:97:0x09A4483934C321e7a1a89c00A2cF2ef882CC6256" // static
+        },
+        "issuanceDate": "1729101072", // now
+        "credentialSubject": {
+            "id": "did:ethr:97:0x09A4483934C321e7a1a89c00A2cF2ef882CC6256", // получили из worker поле с фронта
+            "data": {
+                "image": "https://ipfs.io/ipfs/hash",
+                "type": "MAIN",
+                "навыки": "cool man",
+                "должность": "boss",
+                "фио": "Andreev Andrei Andreevich",
+                "дата найма": "28.05.2011"
+            }
+        }
+    },
+    "issuerSignature": "0x1111111111111"
+}
+
+1. бэкенд хранит приватник у себя,
+2. загружаем картинку на ipfs с фронта,
+
+таким образом мы получили поле json vc.credentialSubject.data.image
+
+теперь он формирует json по типу выше (без signature)
+подписывает его своим приватным ключом
+
+ложит в поле подпись signature
+
+выкладывает в ipfs этот json -> возвращает фронту link (сделано в никиной ветке)
+фронт вызывает mint на контракте
+
+
+
+mint(worker, uri)

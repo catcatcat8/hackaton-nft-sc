@@ -13,6 +13,12 @@ import {EnumerableSet} from '@openzeppelin/contracts/utils/structs/EnumerableSet
 contract NFT is ERC721URIStorage, AccessControl {
     using EnumerableSet for EnumerableSet.UintSet;
 
+    struct Info {
+        uint256 tokenId;
+        address owner;
+        string tokenUri;
+    }
+
     bytes32 public constant ADMIN_ROLE = keccak256('ADMIN_ROLE'); // can mint and burn NFTs
     string public BASE_URI;
 
@@ -120,6 +126,33 @@ contract NFT is ERC721URIStorage, AccessControl {
             }
         }
         return uris;
+    }
+
+    /**
+     * @notice Helper function to get all NFTs info
+     * @param offset Offset to start with
+     * @param limit Return size limit
+     */
+    function getAllURIsInfo(
+        uint256 offset,
+        uint256 limit
+    ) external view returns (Info[] memory) {
+        Info[] memory info = new Info[](limit);
+        for (uint256 i = 0; i < limit; ) {
+            address owner = _ownerOf(i + offset);
+            info[i] = owner == address(0)
+                ? Info({tokenId: i + offset, owner: owner, tokenUri: ''})
+                : Info({
+                    tokenId: i + offset,
+                    owner: owner,
+                    tokenUri: tokenURI(i + offset)
+                });
+
+            unchecked {
+                ++i;
+            }
+        }
+        return info;
     }
 
     /**
