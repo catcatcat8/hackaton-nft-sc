@@ -1,40 +1,56 @@
-// server.js
-const express = require('express')
-const cors = require('cors')
-const { ethers, BigNumber } = require('ethers')
+
+const util = require('util');
+const MongoClient = require('mongodb').MongoClient;
+
+const express = require('express');
+const cors = require('cors');
+const { ethers } = require("ethers");
 const { PinataSDK } = require('pinata-web3')
 require('dotenv').config()
-const app = express()
+const app = express();
 
-// const JsonLdDocumentLoader =require('jsonld-document-loader')
-
-// const cred = require('credentials-context')
-// import * as vc from '@digitalbazaar/vc'
-// Middleware
-app.use(cors())
-app.use(express.json()) // To parse JSON bodies'
 
 const CHAIN_ID = 97
 const DID_PREFIX = `did:ethr:${CHAIN_ID}:`
 
-const PRIVATE_KEY_BACKEND =
-  '9ba09d2e2a9ca98f680977ed6b00ac05e5558b0fa29f3f3d97f5a75ce8c11cc5'
+const PRIVATE_KEY_BACKEND = '9ba09d2e2a9ca98f680977ed6b00ac05e5558b0fa29f3f3d97f5a75ce8c11cc5'
 const ISSUER_WALLET = new ethers.Wallet(PRIVATE_KEY_BACKEND)
 
-const PROVIDER = new ethers.providers.JsonRpcProvider(
-  'https://bsc-testnet.public.blastapi.io'
-)
+const PROVIDER = new ethers.providers.JsonRpcProvider('https://bsc-testnet.public.blastapi.io')
 
-const NFT_ADDR = '0xb857435D138c28d195420F8452F71E9D32aB063F'
-const AUTH_PREFIX = `auth:ethr:${CHAIN_ID}:${NFT_ADDR.toLowerCase()}:`
-
-const abi = ['function counter() public view returns (uint256)']
-const NFT_CONTRACT = new ethers.Contract(NFT_ADDR, abi, PROVIDER)
 
 const pinata = new PinataSDK({
   pinataJwt: process.env.PINATA_JWT,
-  pinataGateway: process.env.GATEWAY_URL,
+  pinataGateway: process.env.GATEWAY_URL
 })
+
+
+
+const DB_RS = null;
+const DB_NAME = 'crypto-cert-db'
+
+const DB_HOSTS = [
+    process.env.DB_HOSTS
+]
+
+const DB_USER  = process.env.DB_USER
+const DB_PASS  = process.env.DB_PASS
+const CACERT   = '/home/tripleheaven/.mongodb/root.crt'
+
+const url = util.format('mongodb://%s:%s@%s/', DB_USER, DB_PASS, DB_HOSTS.join(','))
+
+const options = {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    tls: true,
+    tlsCAFile: CACERT,
+    replicaSet: DB_RS,
+    authSource: DB_NAME
+}
+
+let db
+const client = new MongoClient(url, options);
+
 
 const NFT_TYPES = {
   main: 'MAIN',
@@ -42,12 +58,68 @@ const NFT_TYPES = {
   review: 'REVIEW',
 }
 
+
+
+
+const NFT_ADDR = '0xb857435D138c28d195420F8452F71E9D32aB063F'
+const AUTH_PREFIX = `auth:ethr:${CHAIN_ID}:${NFT_ADDR.toLowerCase()}:`
+
+const abi = ['function counter() public view returns (uint256)']
+const NFT_CONTRACT = new ethers.Contract(NFT_ADDR, abi, PROVIDER)
+
+
+
+let mainClient;
+
+let collection;
+
+
+async function connectToDB() {
+  try {
+      // Only connect if it's not already connected
+      if (!db) {
+          await client.connect();
+          console.log('Connected successfully to MongoDB');
+      }
+      db = client.db('crypto-cert-db');
+      collection = db.collection('query');
+  } catch (err) {
+      console.error('MongoDB connection error:', err);
+      throw err;
+  }
+}
+
+
+
+
+
+// const cred = require('credentials-context')
+// import * as vc from '@digitalbazaar/vc'
+// Middleware
+app.use(cors())
+app.use(express.json()) // To parse JSON bodies'
+
+
+
+app.use(async (req, res, next) => {
+  if (!collection) {
+      await connectToDB();
+  }
+  next();
+});
+
+
 // Example API Route: Submit Profile
-app.post('/api/profile', (req, res) => {
-  const { name, email, bio } = req.body
+app.post('/api/profile', async function (req, res)  {
+
+
+  const documents = await collection.find({}).toArray();
+
+  console.log('Successfully created documents', documents)
+
+  const { name, email, bio } = req.body;
 
   // Here you could handle the data, save it to a database, etc.
-  console.log('Profile Submitted:', { name, email, bio })
 
   // Send a response
   res
