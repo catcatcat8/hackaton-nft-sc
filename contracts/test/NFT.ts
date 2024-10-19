@@ -122,6 +122,17 @@ describe('NFT tests', function () {
     expect(allUriInfo[2].owner).eq(worker.address)
     expect(allUriInfo[2].tokenId).eq(2)
     expect(allUriInfo[2].tokenUri).eq(DEFAULT_BASE_URI + '2')
+
+    expect(await nft.getHoldersCount()).eq(1)
+    expect(await nft.getHoldersSlice(0, 1)).deep.eq([worker.address])
+    expect(await nft.isHolder(worker.address)).true
+
+    await nft.connect(organization).burn(1)
+    await nft.connect(organization).burn(2)
+
+    expect(await nft.getHoldersCount()).eq(0)
+    await expect(nft.getHoldersSlice(0, 1)).reverted
+    expect(await nft.isHolder(worker.address)).false
   })
   it('Should correctly change base URI', async function () {
     const { nft, organization, worker } = await deployContracts()
