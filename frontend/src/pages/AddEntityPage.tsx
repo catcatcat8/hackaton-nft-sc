@@ -4,6 +4,7 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { Dayjs } from 'dayjs';
+import { IPFS_BASE_LINK, PINATA } from '../constants';
 
 
 enum ReviewType {
@@ -40,11 +41,25 @@ const AddEntityPage: React.FC = () => {
 
   const [file, setFile] = useState<File | null>(null); // State to handle file input
 
-
-  const handleFormTwoSubmit = (e: React.FormEvent) => {
+  const handleFormTwoSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     console.log('Form Two Data:', formTwoData);
     console.log ('DATe' , formTwoData.date?.toDate())
+
+    if (!formTwoData.file) {
+      alert('NO FILE TO UPLOAD')
+      return
+    }
+
+    let fileLink: string = ''
+    try {
+      const upload = await PINATA.upload.file(formTwoData.file)
+      fileLink = IPFS_BASE_LINK + upload.IpfsHash
+      alert(`hash загруженного на ipfs сертификата ${IPFS_BASE_LINK + upload.IpfsHash}`)
+    } catch (error) {
+      alert('IPFS ERROR :(')
+      return
+    }
   };
 
   return (

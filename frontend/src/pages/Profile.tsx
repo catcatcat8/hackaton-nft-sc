@@ -4,7 +4,7 @@ import { useAppContext } from '../context/AppContext'
 import * as Yup from 'yup'
 import { ethers } from 'ethers'
 import * as isIPFS from 'is-ipfs'
-import { IPFS_BASE_LINK, NFT_CONTRACT, PINATA, SCANNER_LINK } from '../constants'
+import { ALLOWED_CHAIN_ID, IPFS_BASE_LINK, NFT_CONTRACT, PINATA, SCANNER_LINK } from '../constants'
 import { Field, Form, Formik } from 'formik'
 import axios from 'axios'
 import { PinataSDK } from 'pinata-web3'
@@ -86,6 +86,17 @@ const Profile: React.FC = () => {
       return
     }
 
+    const CURRENT_NFT_ID = await NFT_CONTRACT.counter()
+    const sigToSign = `auth:ethr:${ALLOWED_CHAIN_ID}:${NFT_CONTRACT.address.toLowerCase()}:${CURRENT_NFT_ID.toString()}`
+
+    let signature: string = ''
+    try {
+      signature = await signer!.signMessage(sigToSign)
+    } catch (error) {
+      alert('SIG ERROR')
+      return
+    }
+
     // if (!ethers.utils.isAddress(values.walletAddr)) {
     //   alert('WTF? ITS NOT ETH ADDR')
     //   return
@@ -110,7 +121,7 @@ const Profile: React.FC = () => {
     try {
       const response = await axios.post(
         'http://localhost:5000/api/createMainVC',
-        {imageLink: imageLink, workerAddr: values.walletAddr, skills: values.skills, jobTitle: values.jobTitle, fullName: values.fullName, dateOfHire: values.dateOfHire}
+        {imageLink: imageLink, workerAddr: values.walletAddr, skills: values.skills, jobTitle: values.jobTitle, fullName: values.fullName, dateOfHire: values.dateOfHire, challengeSig: signature}
       )
       responseData = response.data
       console.log("RESP FROM BACK", response.data);
