@@ -1,15 +1,29 @@
 
 const util = require('util');
 const MongoClient = require('mongodb').MongoClient;
-// server.js
-const express = require('express')
-const cors = require('cors')
-const { ethers, BigNumber } = require('ethers')
+
+const express = require('express');
+const cors = require('cors');
+const { ethers } = require("ethers");
 const { PinataSDK } = require('pinata-web3')
 require('dotenv').config()
-const app = express()
+const app = express();
 
-// const JsonLdDocumentLoader =require('jsonld-document-loader')
+
+const CHAIN_ID = 97
+const DID_PREFIX = `did:ethr:${CHAIN_ID}:`
+
+const PRIVATE_KEY_BACKEND = '9ba09d2e2a9ca98f680977ed6b00ac05e5558b0fa29f3f3d97f5a75ce8c11cc5'
+const ISSUER_WALLET = new ethers.Wallet(PRIVATE_KEY_BACKEND)
+
+const PROVIDER = new ethers.providers.JsonRpcProvider('https://bsc-testnet.public.blastapi.io')
+
+
+const pinata = new PinataSDK({
+  pinataJwt: process.env.PINATA_JWT,
+  pinataGateway: process.env.GATEWAY_URL
+})
+
 
 
 const DB_RS = null;
@@ -42,7 +56,6 @@ async function connectToDB() {
   try {
       // Only connect if it's not already connected
       if (!db) {
-        console.log('test')
           await client.connect();
           console.log('Connected successfully to MongoDB');
       }
@@ -70,16 +83,8 @@ const NFT_TYPES = {
   review: 'REVIEW',
 }
 
-const CHAIN_ID = 97
-const DID_PREFIX = `did:ethr:${CHAIN_ID}:`
 
-const PRIVATE_KEY_BACKEND =
-  '9ba09d2e2a9ca98f680977ed6b00ac05e5558b0fa29f3f3d97f5a75ce8c11cc5'
-const ISSUER_WALLET = new ethers.Wallet(PRIVATE_KEY_BACKEND)
 
-const PROVIDER = new ethers.providers.JsonRpcProvider(
-  'https://bsc-testnet.public.blastapi.io'
-)
 
 const NFT_ADDR = '0xb857435D138c28d195420F8452F71E9D32aB063F'
 const AUTH_PREFIX = `auth:ethr:${CHAIN_ID}:${NFT_ADDR.toLowerCase()}:`
@@ -87,10 +92,7 @@ const AUTH_PREFIX = `auth:ethr:${CHAIN_ID}:${NFT_ADDR.toLowerCase()}:`
 const abi = ['function counter() public view returns (uint256)']
 const NFT_CONTRACT = new ethers.Contract(NFT_ADDR, abi, PROVIDER)
 
-const pinata = new PinataSDK({
-  pinataJwt: process.env.PINATA_JWT,
-  pinataGateway: process.env.GATEWAY_URL,
-})
+
 
 let mainClient;
 
@@ -99,7 +101,6 @@ let collection;
 app.use(async (req, res, next) => {
   if (!collection) {
       await connectToDB();
-      console.log('!!! OK')
   }
   next();
 });
@@ -111,7 +112,8 @@ app.post('/api/profile', async function (req, res)  {
 
   const documents = await collection.find({}).toArray();
 
-console.log ('CODUMENTTD', documents)
+  console.log('Successfully created documents', documents)
+
   const { name, email, bio } = req.body;
 
   // Here you could handle the data, save it to a database, etc.
