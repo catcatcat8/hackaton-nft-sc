@@ -20,7 +20,7 @@ const DID_PREFIX = `did:ethr:${CHAIN_ID}:`
 const PRIVATE_KEY_BACKEND = '9ba09d2e2a9ca98f680977ed6b00ac05e5558b0fa29f3f3d97f5a75ce8c11cc5'
 const ISSUER_WALLET = new ethers.Wallet(PRIVATE_KEY_BACKEND)
 
-const PROVIDER = new ethers.providers.JsonRpcProvider('https://bsc-testnet.blockpi.network/v1/rpc/public')
+const PROVIDER = new ethers.providers.JsonRpcProvider('https://bsc-testnet.public.blastapi.io')
 
 const pinata = new PinataSDK({
   pinataJwt: process.env.PINATA_JWT,
@@ -73,6 +73,16 @@ app.post('/api/createMainVC', async (req, res) => {
     }
 
     const signature = await ISSUER_WALLET.signMessage(JSON.stringify(metadata))
+
+    // Sig verify example - понадобится в будущем
+    const signerAddr = await ethers.utils.verifyMessage(JSON.stringify(metadata), signature)
+    if (signerAddr.toLowerCase() == ISSUER_WALLET.address.toLowerCase()) {
+      console.log('RIGHT SIG')
+    } else {
+      console.log('WRONG SIG')
+    }
+
+
     metadata["issuerSignature"] = signature
     
     const blob = new Blob([JSON.stringify(metadata, null, 2)], {
