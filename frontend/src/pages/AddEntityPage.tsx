@@ -21,7 +21,7 @@ interface Review {
 interface Certificate{
   id: null | string,
   date: Dayjs| null,
-  file: HTMLInputElement | null
+  file: File | null
 }
 
 const reviewBaseState = { target: null, text: null, type: null };
@@ -44,6 +44,7 @@ const AddEntityPage: React.FC = () => {
   const handleFormTwoSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log('Form Two Data:', formTwoData);
+    console.log ('DATe' , formTwoData.date?.toDate())
   };
 
   return (
@@ -134,7 +135,10 @@ const AddEntityPage: React.FC = () => {
             type="file"
             fullWidth
             margin="dense"
-            onChange={(e: React.ChangeEvent<HTMLInputElement> ) => setFile(e.target?.files ? e.target?.files[0] : null)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement> ) => {
+              
+              setFormTwoData({ ...formTwoData, file: e.target?.files ? e.target?.files[0] : null })
+         }}
             inputProps={{ accept: '.png, .jpg, .jpeg, .pdf' }} // Limit file types if needed
           />
           <Button type="submit" variant="contained" color="primary">
