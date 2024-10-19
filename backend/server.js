@@ -52,6 +52,28 @@ let db
 const client = new MongoClient(url, options);
 
 
+const NFT_TYPES = {
+  main: 'MAIN',
+  certificate: 'CERTIFICATE',
+  review: 'REVIEW',
+}
+
+
+
+
+const NFT_ADDR = '0xb857435D138c28d195420F8452F71E9D32aB063F'
+const AUTH_PREFIX = `auth:ethr:${CHAIN_ID}:${NFT_ADDR.toLowerCase()}:`
+
+const abi = ['function counter() public view returns (uint256)']
+const NFT_CONTRACT = new ethers.Contract(NFT_ADDR, abi, PROVIDER)
+
+
+
+let mainClient;
+
+let collection;
+
+
 async function connectToDB() {
   try {
       // Only connect if it's not already connected
@@ -77,26 +99,7 @@ async function connectToDB() {
 app.use(cors())
 app.use(express.json()) // To parse JSON bodies'
 
-const NFT_TYPES = {
-  main: 'MAIN',
-  certificate: 'CERTIFICATE',
-  review: 'REVIEW',
-}
 
-
-
-
-const NFT_ADDR = '0xb857435D138c28d195420F8452F71E9D32aB063F'
-const AUTH_PREFIX = `auth:ethr:${CHAIN_ID}:${NFT_ADDR.toLowerCase()}:`
-
-const abi = ['function counter() public view returns (uint256)']
-const NFT_CONTRACT = new ethers.Contract(NFT_ADDR, abi, PROVIDER)
-
-
-
-let mainClient;
-
-let collection;
 
 app.use(async (req, res, next) => {
   if (!collection) {
