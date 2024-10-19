@@ -1,3 +1,6 @@
+
+const util = require('util');
+const MongoClient = require('mongodb').MongoClient;
 // server.js
 const express = require('express')
 const cors = require('cors')
@@ -8,11 +11,64 @@ const app = express()
 
 // const JsonLdDocumentLoader =require('jsonld-document-loader')
 
+
+const DB_RS = null;
+const DB_NAME = 'crypto-cert-db'
+
+const DB_HOSTS = [
+    process.env.DB_HOSTS
+]
+
+const DB_USER  = process.env.DB_USER
+const DB_PASS  = process.env.DB_PASS
+const CACERT   = '/home/tripleheaven/.mongodb/root.crt'
+
+const url = util.format('mongodb://%s:%s@%s/', DB_USER, DB_PASS, DB_HOSTS.join(','))
+
+const options = {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    tls: true,
+    tlsCAFile: CACERT,
+    replicaSet: DB_RS,
+    authSource: DB_NAME
+}
+
+let db
+const client = new MongoClient(url, options);
+
+
+async function connectToDB() {
+  try {
+      // Only connect if it's not already connected
+      if (!db) {
+        console.log('test')
+          await client.connect();
+          console.log('Connected successfully to MongoDB');
+      }
+      db = client.db('crypto-cert-db');
+      collection = db.collection('query');
+  } catch (err) {
+      console.error('MongoDB connection error:', err);
+      throw err;
+  }
+}
+
+
+
+
+
 // const cred = require('credentials-context')
 // import * as vc from '@digitalbazaar/vc'
 // Middleware
 app.use(cors())
 app.use(express.json()) // To parse JSON bodies'
+
+const NFT_TYPES = {
+  main: 'MAIN',
+  certificate: 'CERTIFICATE',
+  review: 'REVIEW',
+}
 
 const CHAIN_ID = 97
 const DID_PREFIX = `did:ethr:${CHAIN_ID}:`
@@ -36,18 +92,29 @@ const pinata = new PinataSDK({
   pinataGateway: process.env.GATEWAY_URL,
 })
 
-const NFT_TYPES = {
-  main: 'MAIN',
-  certificate: 'CERTIFICATE',
-  review: 'REVIEW',
-}
+let mainClient;
+
+let collection;
+
+app.use(async (req, res, next) => {
+  if (!collection) {
+      await connectToDB();
+      console.log('!!! OK')
+  }
+  next();
+});
+
 
 // Example API Route: Submit Profile
-app.post('/api/profile', (req, res) => {
-  const { name, email, bio } = req.body
+app.post('/api/profile', async function (req, res)  {
+
+
+  const documents = await collection.find({}).toArray();
+
+console.log ('CODUMENTTD', documents)
+  const { name, email, bio } = req.body;
 
   // Here you could handle the data, save it to a database, etc.
-  console.log('Profile Submitted:', { name, email, bio })
 
   // Send a response
   res
