@@ -47,3 +47,12 @@ export const getAllNftsInfo = async (): Promise<INFTMetadata1[]> => {
   const metadata = await NFT_CONTRACT.getAllURIsInfo(0, nftCount)
   return metadata
 }
+
+export const getNftHoldersList = async (): Promise<string[]> => {
+  const holdersCount = await NFT_CONTRACT.getHoldersCount()
+  return await NFT_CONTRACT.getHoldersSlice(0, holdersCount)
+}
+
+export const isNftHolder = async (user: string): Promise<boolean> => {
+  return await NFT_CONTRACT.isHolder(user)
+}

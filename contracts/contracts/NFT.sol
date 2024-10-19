@@ -12,6 +12,7 @@ import {EnumerableSet} from '@openzeppelin/contracts/utils/structs/EnumerableSet
  */
 contract NFT is ERC721URIStorage, AccessControl {
     using EnumerableSet for EnumerableSet.UintSet;
+    using EnumerableSet for EnumerableSet.AddressSet;
 
     struct Info {
         uint256 tokenId;
@@ -24,6 +25,7 @@ contract NFT is ERC721URIStorage, AccessControl {
 
     uint256 public counter; // total count of minted NFTs
     mapping(address holder => EnumerableSet.UintSet ids) private _idsPerHolder;
+    EnumerableSet.AddressSet private _holders;
 
     event SetBaseUri(string indexed newBaseUri);
 
@@ -58,6 +60,10 @@ contract NFT is ERC721URIStorage, AccessControl {
         require(bytes(tokenURI_).length != 0, 'tokenURI_: empty');
         uint256 id = counter++;
 
+        if (balanceOf(to_) == 0) {
+            _holders.add(to_);
+        }
+
         _mint(to_, id);
         _setTokenURI(id, tokenURI_);
         _idsPerHolder[to_].add(id);
@@ -72,6 +78,10 @@ contract NFT is ERC721URIStorage, AccessControl {
 
         _burn(tokenId_);
         _idsPerHolder[owner].remove(tokenId_);
+
+        if (balanceOf(owner) == 0) {
+            _holders.remove(owner);
+        }
     }
 
     /**
@@ -153,6 +163,38 @@ contract NFT is ERC721URIStorage, AccessControl {
             }
         }
         return info;
+    }
+
+    /**
+     * @notice Helper function to get NFT holders list
+     * @param offset Offset to start with
+     * @param limit Return size limit
+     */
+    function getHoldersSlice(uint256 offset, uint256 limit) external view returns (address[] memory) {
+        address[] memory holders = new address[](limit);
+        for (uint256 i = 0; i < limit; ) {
+            holders[i] = _holders.at(i + offset);
+
+            unchecked {
+                ++i;
+            }
+        }
+        return holders;
+    }
+
+    /**
+     * @notice Helper function to get NFT holders amount
+     */
+    function getHoldersCount() external view returns (uint256) {
+        return _holders.length();
+    }
+
+    /**
+     * @notice Helper function to get whether a user is an NFT holder or not
+     * @param holder User address
+     */
+    function isHolder(address holder) external view returns (bool) {
+        return _holders.contains(holder);
     }
 
     /**
