@@ -5,6 +5,7 @@ import { useAppContext } from './context/AppContext';
 import Home from './pages/Home';
 import Profile from './pages/Profile';
 import About from './pages/About';
+import AddEntityPage from './pages/AddEntityPage';
 
 const App: React.FC = () => {
   const { account, connectWallet, isAdmin } = useAppContext();
@@ -18,6 +19,12 @@ const App: React.FC = () => {
               My DApp with MetaMask
             </Typography>
             <nav>
+            <Link to="/add-entity" style={{ color: '#fff', textDecoration: 'none' }}>
+                Add Entity
+              </Link>
+            <Link to="/" style={{ color: '#fff', textDecoration: 'none' }}>
+                About
+              </Link>
               <Link to="/" style={{ color: '#fff', textDecoration: 'none', marginRight: '10px' }}>
                 Home
               </Link>
@@ -29,6 +36,7 @@ const App: React.FC = () => {
               <Link to="/about" style={{ color: '#fff', textDecoration: 'none' }}>
                 About
               </Link>
+            
             </nav>
             {account ? (
               <Typography variant="body1">{`Connected: ${account.substring(0, 6)}...${account.substring(account.length - 4)}`}</Typography>
@@ -44,6 +52,8 @@ const App: React.FC = () => {
             <Route path="/" element={<Home />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/about" element={<About />} />
+            <Route path="/add-entity" element={<AddEntityPage />} /> {/* New Route */}
+
           </Routes>
         </Container>
       </div>
