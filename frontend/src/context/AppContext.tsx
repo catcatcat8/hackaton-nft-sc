@@ -7,6 +7,7 @@ import { checkIsAdmin, getAllNftsInfo, isNftHolder } from '../contractFuncs'
 import axios from 'axios'
 import { redirect } from 'react-router-dom'
 import { eraseCookie, getCookie, setCookie } from '../pages/AuthPage'
+import { getCertificatesQueue, getReviewsQueue } from '../api'
 
 // Define types for the context state
 interface AppContextProps {
@@ -27,7 +28,11 @@ interface AppContextProps {
   isHolder: boolean | null
   setIsHolder: (isHolder: boolean) => void,
   myNftData: any,
-  setMyNftData: (nftData: any)=> void
+  setMyNftData: (nftData: any)=> void,
+  certificatesData: any,
+  setCertificatesData: (nftData: any)=> void,
+  reviewsData: any,
+  setReviewsData: (nftData: any)=> void
 }
 
 // Create the context with default values
@@ -49,7 +54,9 @@ const AppContext = createContext<AppContextProps>({
   isHolder: null,
   setIsHolder: () => {},
   myNftData: null,
-  setMyNftData: ()=> {}
+  setMyNftData: ()=> {},
+  certificatesData: null, setCertificatesData: () => {},
+  reviewsData: null, setReviewsData: () => {}
 })
 
 interface AppProviderProps {
@@ -68,6 +75,10 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null)
   const [isHolder, setIsHolder] = useState<boolean | null>(null)
   const [myNftData, setMyNftData] = useState<any | null>(null)
+
+
+  const [certificatesData, setCertificatesData] = useState<any | null>(null)
+  const [reviewsData, setReviewsData] = useState<any | null>(null)
 
 
   const setupProvider = () => {
@@ -146,15 +157,15 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
 
         const preparedData = data.map((item) => item.tokenUri)
 
-        const response = await axios.post(
-          'http://localhost:5000/api/getIpfsInfo',
-          {ipfsLink : preparedData}
-        )
-        responseData = response.data
-        console.log("RESP FROM BACK", response.data);
+        // const response = await axios.post(
+        //   'http://localhost:5000/api/getIpfsInfo',
+        //   {ipfsLink : preparedData}
+        // )
+        // responseData = response.data
+        // console.log("RESP FROM BACK", response.data);
 
 
-        setMyNftData(responseData)
+        // setMyNftData(responseData)
 
         // alert(`BACKEND SUCCESS: ${IPFS_BASE_LINK + responseData.data.ipfsHash}`)
       } catch (error) {
@@ -163,6 +174,31 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       }
       
   }, [])
+
+
+  const getQueuesData =useCallback(async () => {
+    const dataCertificates  = await getCertificatesQueue()
+    const dataReviews = await getReviewsQueue()
+
+    console.log('data getcertificatesque', dataCertificates)
+    console.log('data getreviewsque', dataReviews)
+
+    setReviewsData(dataReviews)
+    setCertificatesData(dataCertificates)
+
+
+
+
+
+    try {
+
+    } catch (error) {
+      alert('BACKEND ERROR')
+      return
+    }
+    
+}, [])
+
   // Check if MetaMask is connected on app load
   useEffect(() => {
     if (window.ethereum) {
@@ -234,7 +270,12 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
    
 
 
-    getAllNftsInfoMain() }
+    getAllNftsInfoMain() 
+    getQueuesData()
+  
+  
+  
+  }
     else {
       if (!window.location.href.includes('setup-extension')) {
       window.location.href = '/setup-extension';
@@ -271,7 +312,11 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
         isHolder,
         setIsHolder,
         myNftData,
-        setMyNftData
+        setMyNftData,
+        reviewsData,
+        setReviewsData,
+        certificatesData,
+        setCertificatesData
       }}
     >
       {children}

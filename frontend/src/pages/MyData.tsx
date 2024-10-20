@@ -1,5 +1,5 @@
 // src/pages/FilterSortPage.tsx
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Box,
   Button,
@@ -14,7 +14,11 @@ import {
   ListItemText,
   ListItemAvatar,
   Avatar,
+  Switch,
 } from '@mui/material';
+import {cloneDeep} from 'lodash';
+import { useAppContext } from '../context/AppContext';
+import dayjs from 'dayjs';
 
 // Define the structure of the user data
 interface UserData {
@@ -34,14 +38,27 @@ const mockData: UserData[] = [
   ];
 
 const MyDataPage: React.FC = () => {
-  const [data, setData] = useState<UserData[]>(mockData); // This state holds the data displayed
+  const {
+    reviewsData,
+    certificatesData
+  } = useAppContext()
+  const [data, setData] = useState<any[]>(cloneDeep(certificatesData)); // This state holds the data displayed
   const [searchTerm, setSearchTerm] = useState(''); // Filter term
   const [sortField, setSortField] = useState<keyof UserData>('name'); // Field to sort by
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc'); // Sort order (asc or desc)
 
+
+
+ 
+
+
+  const [isQueuesState, setIsQueusState] = useState(true); // Set is queues state
+  const [isCertificates, setIsCertificates] = useState(true) ; // Set is certificates data
+
+
   // Filter and sort logic
   const handleFilterAndSort = () => {
-    let filteredData = mockData;
+    let filteredData = data;
 
     // Filter: If searchTerm is not empty, filter the data
     if (searchTerm) {
@@ -65,11 +82,23 @@ const MyDataPage: React.FC = () => {
 
   // Reset to original data
   const handleReset = () => {
-    setData(mockData);
+    setData(certificatesData);
     setSearchTerm('');
     setSortField('name');
     setSortOrder('asc');
   };
+
+  useEffect(() => {
+    if (isQueuesState && isCertificates) {
+      setData(cloneDeep(certificatesData))
+    }
+    else if (isQueuesState && !isCertificates){
+      setData(cloneDeep(reviewsData))
+    }
+
+   }, [isQueuesState, isCertificates])
+
+  
 
   return (
     <Box sx={{ maxWidth: '700px', margin: '0 auto', textAlign: 'center' }}>
@@ -128,37 +157,110 @@ const MyDataPage: React.FC = () => {
         Reset
       </Button>
 
+      <Box sx={{ marginBottom: '20px' }}>
+        <Typography variant="body1" gutterBottom>
+          {isQueuesState ? 'Очередь на рассмотрение' : 'Существующие NFT'}
+        </Typography>
+        <Switch
+          checked={!isQueuesState}
+          onChange={() => {
+            if (isQueuesState && isCertificates) {
+              // setData(cloneDeep())
+            }
+            else {
+              // setData(diplomaBaseState)
+            }
+            
+            setIsQueusState(!isQueuesState)}}
+          color="primary"
+        />
+      </Box>
+      <Box sx={{ marginBottom: '20px' }}>
+        <Typography variant="body1" gutterBottom>
+          {isCertificates ? 'Сертификаты' : 'Отзывы'}
+        </Typography>
+        <Switch
+          checked={!isCertificates}
+          onChange={() => {
+            if (isQueuesState && isCertificates) {
+              setData(cloneDeep(certificatesData))
+            }
+            else if (isQueuesState && !isCertificates){
+              setData(cloneDeep(reviewsData))
+            }
+            
+            setIsCertificates(!isCertificates)}}
+          color="primary"
+        />
+      </Box>
+
+
       {/* Data Display */}
       <Box sx={{ marginTop: '40px', textAlign: 'left' }}>
         <Typography variant="h5" gutterBottom>
           Результат
         </Typography>
         <List>
-          {data.length > 0 ? (
-            data.map((item) => (
-                <ListItem key={item.id} sx={{ display: 'flex', justifyContent: 'space-between' }}>
+          {data && data.length > 0 ? (
+            data.map((item) => {
+              
+              if (isCertificates) {
+                return(
+                  <ListItem key={item._id} sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                  {/* Avatar for image */}
+                  <ListItemAvatar>
+                      <div onClick={() => window.open(item.imageLink)}>
+                    <Avatar src={item.imageLink} alt={item.name} />
+                    </div>
+                  </ListItemAvatar>
+  
+                  {/* User Info */}
+                  <ListItemText
+                    primary={`${item.workerAddr}, id сертификата: ${item.certificateId}, Date: ${dayjs(item.receiptDate)}`}
+                  />
+  
+                  {/* Button for each list item */}
+                  {!item.isAccepted && (
+                    <Button
+                    variant="contained"
+                    color="secondary"
+                    onClick={() => console.log(`Button clicked for ${item.name}`)}
+                  >
+                    Подтвердить
+                  </Button>
+                  )}
+                  
+                </ListItem>
+              )
+              }
+              
+              return(
+                <ListItem key={item._id} sx={{ display: 'flex', justifyContent: 'space-between' }}>
                 {/* Avatar for image */}
-                <ListItemAvatar>
+                {/* <ListItemAvatar>
                     <div onClick={() => window.open(item.image)}>
                   <Avatar src={item.image} alt={item.name} />
                   </div>
-                </ListItemAvatar>
+                </ListItemAvatar> */}
 
                 {/* User Info */}
                 <ListItemText
-                  primary={`${item.name}, Age: ${item.age}, Date: ${item.date}`}
+                  primary={`От кого ${item.reviewFrom}, На кого ${item.reviewTo}, Date: x`}
                 />
 
                 {/* Button for each list item */}
-                <Button
-                  variant="contained"
-                  color="secondary"
-                  onClick={() => console.log(`Button clicked for ${item.name}`)}
-                >
-                  Action
-                </Button>
+                {!item.isAccepted && (
+                   <Button
+                   variant="contained"
+                   color="secondary"
+                   onClick={() => console.log(`Button clicked for ${item}`)}
+                 >
+                   Подтвердить
+                 </Button>
+                )}
+               
               </ListItem>
-            ))
+            )})
           ) : ( 
             <Typography>Данных не найдено</Typography>
           )}
