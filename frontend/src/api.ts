@@ -1,17 +1,17 @@
 import axios from "axios"
 
-export async function acceptReview(id: string): Promise<number> {
+export async function acceptReview(id: string, idSig: string): Promise<number> {
     const response = await axios.post(
         'http://localhost:5000/api/acceptReview',
-        {id: id}
+        {id: id, idSig: idSig}
       )
     return response.status
 }
 
-export async function acceptCertificate(id: string): Promise<number> {
+export async function acceptCertificate(id: string, idSig: string): Promise<number> {
     const response = await axios.post(
         'http://localhost:5000/api/acceptCertificate',
-        {id: id}
+        {id: id, idSig: idSig}
       )
     return response.status
 }

@@ -19,6 +19,10 @@ import {
 import {cloneDeep} from 'lodash';
 import { useAppContext } from '../context/AppContext';
 import dayjs from 'dayjs';
+import axios from 'axios';
+import { ALLOWED_CHAIN_ID, IPFS_BASE_LINK, NFT_CONTRACT, SCANNER_LINK } from '../constants';
+import { ethers } from 'ethers';
+import { acceptCertificate, acceptReview } from '../api';
 
 // Define the structure of the user data
 interface UserData {
@@ -40,7 +44,8 @@ const mockData: UserData[] = [
 const MyDataPage: React.FC = () => {
   const {
     reviewsData,
-    certificatesData
+    certificatesData,
+    signer
   } = useAppContext()
   const [data, setData] = useState<any[]>(cloneDeep(certificatesData)); // This state holds the data displayed
   const [searchTerm, setSearchTerm] = useState(''); // Filter term
@@ -98,6 +103,146 @@ const MyDataPage: React.FC = () => {
 
    }, [isQueuesState, isCertificates])
 
+   const mintCertificate = async (values: any) => {
+
+    alert('todo: лоадер на кнопку')
+    
+    const CURRENT_NFT_ID = await NFT_CONTRACT.counter()
+    const sigToSign = `auth:ethr:${ALLOWED_CHAIN_ID}:${NFT_CONTRACT.address.toLowerCase()}:${CURRENT_NFT_ID.toString()}`
+
+    let signature: string = ''
+    try {
+      signature = await signer!.signMessage(sigToSign)
+    } catch (error) {
+      alert('SIG ERROR')
+      return
+    }
+    
+
+    let signatureForDbUpdate: string = ''
+    try {
+      signatureForDbUpdate = await signer!.signMessage(values._id)
+    } catch (error) {
+      alert('SIG ERROR')
+      return
+    }
+
+    let responseData: any = null
+    try {
+      console.log(values);
+      
+      const response = await axios.post(
+        'http://localhost:5000/api/createCertificateVC',
+        {imageLink: values.imageLink, workerAddr: values.workerAddr, certificateId: values.certificateId, receiptDate: values.receiptDate, challengeSig: signature}
+      ) 
+      responseData = response.data
+      console.log("RESP FROM BACK", response.data);
+      alert(`BACKEND SUCCESS: ${IPFS_BASE_LINK + responseData.data.ipfsHash}`)
+    } catch (error) {
+      alert('BACKEND ERROR')
+      return
+    }
+
+    let txWaited: ethers.ContractReceipt | null = null
+    if (responseData) {
+      try {
+        const tx = await NFT_CONTRACT.connect(signer!).mint(
+          values.workerAddr,
+          responseData.data.ipfsHash
+        )
+        txWaited = await tx.wait()
+        alert(`TX SUCCESS: ${SCANNER_LINK + tx.hash}`)
+      } catch (error) {
+        console.log(error)
+        alert('WHY REJECT??')
+      }
+    }
+
+    let response: any = null
+    if (txWaited?.transactionHash) {
+      try {
+        response = await acceptCertificate(values._id, signatureForDbUpdate)
+      } catch (error) {
+        alert('BACKEND ERROR')
+        return
+      }
+    }
+
+    if (response == 200) {
+      alert('транза прошла, в дб флаг поменяли, на этом моменте кнопку у этого итема можно убирать')
+      return
+    }
+   }
+
+   const mintReview = async (values: any) => {
+    alert('todo: лоадер на кнопку')
+    const CURRENT_NFT_ID = await NFT_CONTRACT.counter()
+    const sigToSign = `auth:ethr:${ALLOWED_CHAIN_ID}:${NFT_CONTRACT.address.toLowerCase()}:${CURRENT_NFT_ID.toString()}`
+
+    let signature: string = ''
+    try {
+      signature = await signer!.signMessage(sigToSign)
+    } catch (error) {
+      alert('SIG ERROR')
+      return
+    }
+    
+
+    let signatureForDbUpdate: string = ''
+    try {
+      signatureForDbUpdate = await signer!.signMessage(values._id)
+    } catch (error) {
+      alert('SIG ERROR')
+      return
+    }
+
+    let responseData: any = null
+    try {
+      const response = await axios.post(
+        'http://localhost:5000/api/createReviewVC',
+        {reviewFrom: values.reviewFrom, reviewTo: values.reviewTo, reviewText: values.reviewText, reviewType: values.reviewType, challengeSig: signature}
+      ) 
+      responseData = response.data
+      console.log("RESP FROM BACK", response.data);
+      alert(`BACKEND SUCCESS: ${IPFS_BASE_LINK + responseData.data.ipfsHash}`)
+    } catch (error) {
+      alert('BACKEND ERROR')
+      return
+    }
+
+    let txWaited: ethers.ContractReceipt | null = null
+    if (responseData) {
+      try {
+        const tx = await NFT_CONTRACT.connect(signer!).mint(
+          values.reviewTo,
+          responseData.data.ipfsHash
+        )
+        txWaited = await tx.wait()
+        alert(`TX SUCCESS: ${SCANNER_LINK + tx.hash}`)
+      } catch (error) {
+        console.log(error)
+        alert('WHY REJECT??')
+      }
+    }
+
+    let response: any = null
+    if (txWaited?.transactionHash) {
+      try {
+        response = await acceptReview(values._id, signatureForDbUpdate)
+      } catch (error) {
+        alert('BACKEND ERROR')
+        return
+      }
+    }
+    
+    if (response == 200) {
+      console.log("RESP", response);
+      
+      alert('транза прошла, в дб флаг поменяли, на этом моменте кнопку у этого итема можно убирать')
+      return
+    }
+
+   }
   
 
   return (
@@ -224,7 +369,7 @@ const MyDataPage: React.FC = () => {
                     <Button
                     variant="contained"
                     color="secondary"
-                    onClick={() => console.log(`Button clicked for ${item.name}`)}
+                    onClick={() => mintCertificate(item)}
                   >
                     Подтвердить
                   </Button>
@@ -253,7 +398,7 @@ const MyDataPage: React.FC = () => {
                    <Button
                    variant="contained"
                    color="secondary"
-                   onClick={() => console.log(`Button clicked for ${item}`)}
+                   onClick={() => mintReview(item)}
                  >
                    Подтвердить
                  </Button>
