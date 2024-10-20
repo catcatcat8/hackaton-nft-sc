@@ -54,7 +54,7 @@ walletAddr?: string
   }
   
   const userProfile: UserProfile = {
-    fullName: 'ЛЕХА ФРОНТ',
+    fullName: 'Mock',
     dateOfBirth: '1990-06-15',
     avatar: 'https://via.placeholder.com/150',
     jobTitle: 'Full Stack Developer',

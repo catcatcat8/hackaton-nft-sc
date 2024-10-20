@@ -139,13 +139,17 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     if (account) {
     const isHolder= await isNftHolder(account)
     setIsHolder(isHolder)
-    if (account && myNftData){
-      setMyMainNft((myNftData.data?.responseFinalle as DATA[]).find(item => item && item?.walletAddr && (account?.toLowerCase() === item?.walletAddr.toLowerCase() && item?.type === 'MAIN')))
-      console.log('zzzz',(myNftData.data?.responseFinalle as DATA[]).find(item => item && item?.walletAddr && (account?.toLowerCase() === item?.walletAddr.toLowerCase() && item?.type === 'MAIN')))
-
-    }
+   
     }
   }, [account])
+
+
+  useEffect(() => {
+    if (account && myNftData){
+      setMyMainNft((myNftData.data?.responseFinalle as DATA[]).find(item => item && item?.walletAddr && (account?.toLowerCase() === item?.walletAddr.toLowerCase() && item?.type === 'MAIN')))
+
+    }
+  }, [account, myNftData])
 
   const getAllNftsInfoMain =useCallback(async () => {
       const data  = await getAllNftsInfo()
