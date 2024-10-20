@@ -8,6 +8,7 @@ const { ethers } = require("ethers");
 const { PinataSDK } = require('pinata-web3')
 require('dotenv').config()
 const app = express();
+const { ObjectId } = require('mongodb');
 
 
 const CHAIN_ID = 97
@@ -35,7 +36,7 @@ const DB_HOSTS = [
 
 const DB_USER  = process.env.DB_USER
 const DB_PASS  = process.env.DB_PASS
-const CACERT   = '/home/tripleheaven/.mongodb/root.crt'
+const CACERT   = '/home/lebedev666e/.mongodb/root.crt'
 
 const url = util.format('mongodb://%s:%s@%s/', DB_USER, DB_PASS, DB_HOSTS.join(','))
 
@@ -71,8 +72,8 @@ const NFT_CONTRACT = new ethers.Contract(NFT_ADDR, abi, PROVIDER)
 
 let mainClient;
 
-let collection;
-
+let reviewsQueue;
+let certificatesQueue
 
 async function connectToDB() {
   try {
@@ -82,7 +83,8 @@ async function connectToDB() {
           console.log('Connected successfully to MongoDB');
       }
       db = client.db('crypto-cert-db');
-      collection = db.collection('query');
+      reviewsQueue = db.collection('reviews');
+      certificatesQueue = db.collection('certificates')
   } catch (err) {
       console.error('MongoDB connection error:', err);
       throw err;
@@ -102,7 +104,7 @@ app.use(express.json()) // To parse JSON bodies'
 
 
 app.use(async (req, res, next) => {
-  if (!collection) {
+  if (!reviewsQueue || !certificatesQueue) {
       await connectToDB();
   }
   next();
@@ -113,7 +115,7 @@ app.use(async (req, res, next) => {
 app.post('/api/profile', async function (req, res)  {
 
 
-  const documents = await collection.find({}).toArray();
+  const documents = await reviewsQueue.find({}).toArray();
 
   console.log('Successfully created documents', documents)
 
@@ -158,6 +160,129 @@ async function signMetadataAndSendToIpfs(metadata) {
 
   return upload.IpfsHash
 }
+
+app.post('/api/insertReview', async (req, res) => {
+  const { reviewFrom, reviewTo, reviewText, reviewType } =
+    req.body
+
+  const data = {
+    reviewFrom,
+    reviewTo,
+    reviewText,
+    reviewType,
+    isAccepted: false
+  }
+  try {
+    await reviewsQueue.insertOne(data)
+  } catch (error) {
+    res.status(500).json({message: 'MongoDB reviews insert error'})
+    return
+  }
+
+  res
+    .status(200)
+    .json({
+      message: 'Review inserted to queue successfully',
+      data: {},
+    })
+})
+
+app.post('/api/insertCertificate', async (req, res) => {
+  const { imageLink, workerAddr, certificateId, receiptDate } =
+    req.body
+
+  const data = {
+    workerAddr,
+    imageLink,
+    certificateId,
+    receiptDate,
+    isAccepted: false
+  }
+  try {
+    await certificatesQueue.insertOne(data)
+  } catch (error) {
+    res.status(500).json({message: 'MongoDB certificates insert error'})
+    return
+  }
+
+  res
+    .status(200)
+    .json({
+      message: 'Certificate inserted to queue successfully',
+      data: {},
+    })
+})
+
+app.post('/api/acceptReview', async (req, res) => {
+  const { id } =
+    req.body
+
+    try {
+      await reviewsQueue.updateOne({"_id": new ObjectId(id.toString())}, {"$set": {"isAccepted": true}})
+    } catch (error) {
+      console.log(error);
+      
+      res.status(500).json({message: 'MongoDB reviews insert error'})
+      return
+    }
+    res
+    .status(200)
+    .json({
+      message: 'Review updated successfully',
+      data: {},
+    })
+})
+
+app.post('/api/acceptCertificate', async (req, res) => {
+  const { id } =
+    req.body
+
+    try {
+      await certificatesQueue.updateOne({"_id": new ObjectId(id)}, {"$set": {"isAccepted": true}})
+    } catch (error) {
+      res.status(500).json({message: 'MongoDB certificates insert error'})
+      return
+    }
+    res
+    .status(200)
+    .json({
+      message: 'Certificate updated successfully',
+      data: {},
+    })
+})
+
+app.get('/api/getCertificatesQueue', async (req, res) => {
+  let certificates
+  console.log('hello')
+  try {
+    certificates = await certificatesQueue.find({}).toArray();
+  } catch (error) {
+    res.status(500).json({message: 'Backend error'})
+    return
+  }
+  res
+    .status(200)
+    .json({
+      message: 'Certificates received successfully',
+      data: {certificates},
+    })
+})
+
+app.get('/api/getReviewsQueue', async (req, res) => {
+  let reviews
+  try {
+    reviews = await reviewsQueue.find({}).toArray();
+  } catch (error) {
+    res.status(500).json({message: 'Backend error'})
+    return
+  }
+  res
+    .status(200)
+    .json({
+      message: 'Reviews received successfully',
+      data: {reviews},
+    })
+})
 
 app.post('/api/createMainVC', async (req, res) => {
   const {
@@ -204,6 +329,7 @@ app.post('/api/createMainVC', async (req, res) => {
     ipfsHash = await signMetadataAndSendToIpfs(metadata)
   } catch (error) {
     res.status(500).json({message: 'IPFS error'})
+    return
   }
 
   res
@@ -250,6 +376,7 @@ app.post('/api/createCertificateVC', async (req, res) => {
     ipfsHash = await signMetadataAndSendToIpfs(metadata)
   } catch (error) {
     res.status(500).json({message: 'IPFS error'})
+    return
   }
 
   res
@@ -297,6 +424,7 @@ app.post('/api/createReviewVC', async (req, res) => {
     ipfsHash = await signMetadataAndSendToIpfs(metadata)
   } catch (error) {
     res.status(500).json({message: 'IPFS error'})
+    return
   }
 
   res
