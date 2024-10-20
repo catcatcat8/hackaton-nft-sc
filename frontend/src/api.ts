@@ -32,6 +32,20 @@ interface IReviewsQueue {
     reviewText: string
 }
 
+export async function getUserInfo(user: string): Promise<any | null> {
+    let response: any = null
+    try {
+        response = await axios.get(
+            `http://localhost:5000/api/getUserInfo`,
+            {params: { userAddress: user }}
+          )
+    } catch (error) {
+        return null
+    }
+
+    return response.data.data
+}
+
 export async function getCertificatesQueue(): Promise<ICertificatesQueue[] | null> {
     let response: any = null
     try {

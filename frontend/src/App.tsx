@@ -61,6 +61,7 @@ const App: React.FC = () => {
             <Route path="/setup-extension" element={<SetupPage />} /> {/* New Route */}
             <Route path="/setup-extension" element={<SetupPage />} /> {/* New Route */}
             <Route path="/auth" element={<AuthPage />} />
+            <Route path="/home" element={<Home />} />
             
           </Routes>
         </Container>

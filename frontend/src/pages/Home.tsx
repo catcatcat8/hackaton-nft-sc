@@ -2,13 +2,13 @@ import React from 'react';
 import { Typography } from '@mui/material';
 import { useAppContext } from '../context/AppContext';
 import axios from 'axios';
-import { acceptCertificate, acceptReview, getCertificatesQueue, getReviewsQueue } from '../api';
+import { acceptCertificate, acceptReview, getCertificatesQueue, getReviewsQueue, getUserInfo } from '../api';
 
 const Home: React.FC = () => {
   const { account } = useAppContext();
 
   const onTestBackend = async() => {
-    await acceptCertificate('671459777ce30654de9ace8c')
+    console.log(await getUserInfo('0xA704ea83e43Eaa076A1F428cA8879fEA5e1f9b63'))
   }
 
   return (
