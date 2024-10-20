@@ -5,6 +5,9 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider/L
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { Dayjs } from 'dayjs';
 import { IPFS_BASE_LINK, PINATA } from '../constants';
+import axios from 'axios';
+import { useAppContext } from '../context/AppContext';
+import { ethers } from 'ethers';
 
 
 enum ReviewType {
@@ -29,14 +32,47 @@ const reviewBaseState = { target: null, text: null, type: null };
 const diplomaBaseState = { id: null, date: null , file: null};
 
 const AddEntityPage: React.FC = () => {
+  const {
+    account,
+    name,
+    setName,
+    email,
+    setEmail,
+    bio,
+    setBio,
+    isAdmin,
+    signer,
+  } = useAppContext()
+
   const [isFormOne, setIsFormOne] = useState(true); // Control which form to show
   const [formOneData, setFormOneData] = useState<Review>(reviewBaseState);
   const [formTwoData, setFormTwoData] = useState<Certificate>({ id: null, date: null, file : null  });
 
+  function validateWallet(wallet: string) {
+    let error
+    if (!ethers.utils.isAddress(wallet)) {
+      error = 'Invalid wallet address'
+    }
+    return error
+  }
+
   // Handle form submission
-  const handleFormOneSubmit = (e: React.FormEvent) => {
+  const handleFormOneSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     console.log('Form One Data:', formOneData);
+
+    try {
+      const response = await axios.post(
+        'http://localhost:5000/api/insertReview',
+        {reviewFrom: account, reviewTo: formOneData.target, reviewText: formOneData.text, reviewType: formOneData.type}
+      )
+      if (response.status == 200) {
+        alert(`BACKEND SUCCESS`)
+      }
+    } catch (error) {
+      alert('BACKEND ERROR')
+      return
+    }
   };
 
   const [file, setFile] = useState<File | null>(null); // State to handle file input
@@ -58,6 +94,19 @@ const AddEntityPage: React.FC = () => {
       alert(`hash загруженного на ipfs сертификата ${IPFS_BASE_LINK + upload.IpfsHash}`)
     } catch (error) {
       alert('IPFS ERROR :(')
+      return
+    }
+
+    try {
+      const response = await axios.post(
+        'http://localhost:5000/api/insertCertificate',
+        {imageLink: fileLink, workerAddr: account, certificateId: formTwoData.id, receiptDate: formTwoData.date?.unix()}
+      )
+      if (response.status == 200) {
+        alert(`BACKEND SUCCESS`)
+      }
+    } catch (error) {
+      alert('BACKEND ERROR')
       return
     }
   };

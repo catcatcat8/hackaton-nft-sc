@@ -2,17 +2,13 @@ import React from 'react';
 import { Typography } from '@mui/material';
 import { useAppContext } from '../context/AppContext';
 import axios from 'axios';
+import { acceptCertificate, acceptReview, getCertificatesQueue, getReviewsQueue } from '../api';
 
 const Home: React.FC = () => {
   const { account } = useAppContext();
 
   const onTestBackend = async() => {
-    try {
-      const response = await axios.post('http://localhost:5000/api/profile', {kek: 123});
-      console.log('Profile Submitted:', response.data);
-    } catch (error) {
-      console.error('Error submitting profile:', error);
-    }
+    await acceptCertificate('671459777ce30654de9ace8c')
   }
 
   return (
