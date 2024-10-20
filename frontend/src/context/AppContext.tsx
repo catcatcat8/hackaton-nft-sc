@@ -157,17 +157,18 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
 
         const preparedData = data.map((item) => item.tokenUri)
 
-        // const response = await axios.post(
-        //   'http://localhost:5000/api/getIpfsInfo',
-        //   {ipfsLink : preparedData}
-        // )
-        // responseData = response.data
-        // console.log("RESP FROM BACK", response.data);
+        const response = await axios.post(
+          'http://localhost:5000/api/getIpfsInfo',
+          {ipfsLink : preparedData}
+        )
+        responseData = response.data
+        console.log("RESP FROM BACK", response.data);
 
 
-        // setMyNftData(responseData)
 
-        // alert(`BACKEND SUCCESS: ${IPFS_BASE_LINK + responseData.data.ipfsHash}`)
+
+        setMyNftData(responseData)
+
       } catch (error) {
         alert('BACKEND ERROR')
         return
@@ -181,7 +182,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     const dataReviews = await getReviewsQueue()
 
     console.log('data getcertificatesque', dataCertificates)
-    console.log('data getreviewsque', dataReviews)
+    console.log('data getr\eviewsque', dataReviews)
 
     setReviewsData(dataReviews)
     setCertificatesData(dataCertificates)

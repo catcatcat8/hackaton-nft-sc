@@ -2,8 +2,8 @@ import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { DeployFunction } from 'hardhat-deploy/types'
 import { NFT } from '@/typechain'
 
-export const DEFAULT_COLLECTION_NAME = 'Крипто$лоня₽ы Collection'
-export const DEFAULT_COLLECTION_SYMBOL = 'KC'
+export const DEFAULT_COLLECTION_NAME = 'DONS Collection'
+export const DEFAULT_COLLECTION_SYMBOL = 'DC'
 export const DEFAULT_BASE_URI = 'https://ipfs.io/ipfs/'
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
