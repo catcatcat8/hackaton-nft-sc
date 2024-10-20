@@ -269,33 +269,69 @@ app.post('/api/acceptCertificate', async (req, res) => {
 app.get('/api/getCertificatesQueue', async (req, res) => {
   let certificates
   console.log('hello')
+  let result = [];
+
   try {
     certificates = await certificatesQueue.find({}).toArray();
+
+
+
+    for (let i=0; i < certificates.length; i++) {
+      result.push(certificates[i])
+      let userInfo = await usersInfo.findOne({"address": certificates[i].workerAddr.toLowerCase()});
+
+      result[i].fullName=userInfo.fullName;
+      result[i].image=userInfo.image;
+
+    }
+
   } catch (error) {
     res.status(500).json({message: 'Backend error'})
     return
   }
+
+  console.log("TEST", certificates)
   res
     .status(200)
     .json({
       message: 'Certificates received successfully',
-      data: {certificates},
+      data: {certificates:  result},
     })
 })
 
 app.get('/api/getReviewsQueue', async (req, res) => {
   let reviews
+  let result = []
   try {
     reviews = await reviewsQueue.find({}).toArray();
+
+
+
+    for (let i=0; i < reviews.length; i++) {
+      result.push(reviews[i])
+      let userInfoFrom = await usersInfo.findOne({"address": reviews[i].reviewFrom.toLowerCase()});
+      let userInfoTo = await usersInfo.findOne({"address": reviews[i].reviewTo.toLowerCase()});
+
+      console.log('TFEFEWI!!', reviews[i].reviewTo.toLowerCase())
+
+      result[i].fullNameFrom=userInfoFrom?.fullName;
+      result[i].imageFrom=userInfoFrom?.image;
+
+      result[i].fullNameTo=userInfoTo?.fullName;
+      result[i].imageTo=userInfoTo?.image;
+    }
+
+
   } catch (error) {
-    res.status(500).json({message: 'Backend error'})
+    console.error('ERROR', error)
+    res.status(500).json({message: 'Backend error '})
     return
   }
   res
     .status(200)
     .json({
       message: 'Reviews received successfully',
-      data: {reviews},
+      data: {reviews: result},
     })
 })
 
