@@ -9,6 +9,7 @@ import { Field, Form, Formik } from 'formik'
 import axios from 'axios'
 import { PinataSDK } from 'pinata-web3'
 import manPicture from '../man_picture.jpg'
+import { acceptCertificate } from '../api'
 
 interface IMainNFTForm {
   walletAddr: string
