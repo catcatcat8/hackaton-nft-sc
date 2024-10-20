@@ -63,7 +63,7 @@ const NFT_TYPES = {
 
 
 
-const NFT_ADDR = '0xb857435D138c28d195420F8452F71E9D32aB063F'
+const NFT_ADDR = '0x225774cB32E49bceA6Ac1F44F86cCE87ACd241b6'
 const AUTH_PREFIX = `auth:ethr:${CHAIN_ID}:${NFT_ADDR.toLowerCase()}:`
 
 const abi = ['function counter() public view returns (uint256)']
