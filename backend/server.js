@@ -75,6 +75,7 @@ let mainClient;
 
 let reviewsQueue;
 let certificatesQueue
+let usersInfo
 
 async function connectToDB() {
   try {
@@ -86,6 +87,7 @@ async function connectToDB() {
       db = client.db('crypto-cert-db');
       reviewsQueue = db.collection('reviews');
       certificatesQueue = db.collection('certificates')
+      usersInfo = db.collection('usersInfo')
   } catch (err) {
       console.error('MongoDB connection error:', err);
       throw err;
@@ -285,6 +287,30 @@ app.get('/api/getReviewsQueue', async (req, res) => {
     })
 })
 
+app.get('/api/getUserInfo', async (req, res) => {
+  const userAddress = req.query.userAddress
+  console.log(userAddress);
+  
+
+  let userInfo
+  try {
+    userInfo = await usersInfo.findOne({"address": userAddress.toLowerCase()});
+  } catch (error) {
+    res
+    .status(200)
+    .json({
+      message: 'No user info',
+      data: {},
+    })
+  }
+  res
+    .status(200)
+    .json({
+      message: 'UserInfo received successfully',
+      data: {userInfo},
+    })
+})
+
 app.post('/api/createMainVC', async (req, res) => {
   const {
     imageLink,
@@ -330,6 +356,19 @@ app.post('/api/createMainVC', async (req, res) => {
     ipfsHash = await signMetadataAndSendToIpfs(metadata)
   } catch (error) {
     res.status(500).json({message: 'IPFS error'})
+    return
+  }
+
+  const data = {
+    address: workerAddr.toLowerCase(),
+    fullName: fullName,
+    image: imageLink,
+  }
+
+  try {
+    await usersInfo.insertOne(data)
+  } catch (error) {
+    res.status(500).json({message: 'MongoDB userInfo insert error'})
     return
   }
 
