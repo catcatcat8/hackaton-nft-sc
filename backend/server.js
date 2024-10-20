@@ -63,7 +63,7 @@ const NFT_TYPES = {
 
 
 
-const NFT_ADDR = '0xb857435D138c28d195420F8452F71E9D32aB063F'
+const NFT_ADDR = '0x225774cB32E49bceA6Ac1F44F86cCE87ACd241b6'
 const AUTH_PREFIX = `auth:ethr:${CHAIN_ID}:${NFT_ADDR.toLowerCase()}:`
 
 const abi = ['function counter() public view returns (uint256)']
@@ -268,40 +268,72 @@ app.post('/api/acceptCertificate', async (req, res) => {
 
 app.get('/api/getCertificatesQueue', async (req, res) => {
   let certificates
-  console.log('hello')
+  let result = [];
+
   try {
     certificates = await certificatesQueue.find({}).toArray();
+
+
+
+    for (let i=0; i < certificates.length; i++) {
+      result.push(certificates[i])
+      let userInfo = await usersInfo.findOne({"address": certificates[i].workerAddr.toLowerCase()});
+
+      result[i].fullName=userInfo?.fullName;
+      result[i].image=userInfo?.image;
+
+    }
+
   } catch (error) {
     res.status(500).json({message: 'Backend error'})
     return
   }
+
   res
     .status(200)
     .json({
       message: 'Certificates received successfully',
-      data: {certificates},
+      data: {certificates:  result},
     })
 })
 
 app.get('/api/getReviewsQueue', async (req, res) => {
   let reviews
+  let result = []
   try {
     reviews = await reviewsQueue.find({}).toArray();
+
+
+
+    for (let i=0; i < reviews.length; i++) {
+      result.push(reviews[i])
+      let userInfoFrom = await usersInfo.findOne({"address": reviews[i].reviewFrom.toLowerCase()});
+      let userInfoTo = await usersInfo.findOne({"address": reviews[i].reviewTo.toLowerCase()});
+
+
+      result[i].fullNameFrom=userInfoFrom?.fullName;
+      result[i].imageFrom=userInfoFrom?.image;
+
+      result[i].fullNameTo=userInfoTo?.fullName;
+      result[i].imageTo=userInfoTo?.image;
+    }
+
+
   } catch (error) {
-    res.status(500).json({message: 'Backend error'})
+    console.error('ERROR', error)
+    res.status(500).json({message: 'Backend error '})
     return
   }
   res
     .status(200)
     .json({
       message: 'Reviews received successfully',
-      data: {reviews},
+      data: {reviews: result},
     })
 })
 
 app.get('/api/getUserInfo', async (req, res) => {
   const userAddress = req.query.userAddress
-  console.log(userAddress);
   
 
   let userInfo
@@ -337,11 +369,12 @@ app.post('/api/createMainVC', async (req, res) => {
   const isRightSignature = await challengeVerify(challengeSig)
   if (!isRightSignature) {
     res.status(401).json({ message: 'Wrong signature', data: {} })
+    return;
   }
 
   const now = (await PROVIDER.getBlock('latest')).timestamp
   const metadata = {
-    name: 'Крипто$лоня₽ы Collection Digital Profile',
+    name: 'DONS Collection Main',
     image: imageLink,
     description: "Metadata of a company employee's digital profile.",
     vc: {
@@ -395,7 +428,6 @@ app.post('/api/createMainVC', async (req, res) => {
 app.post('/api/createCertificateVC', async (req, res) => {
   const { imageLink, workerAddr, certificateId, receiptDate, challengeSig } =
     req.body
-  console.log(receiptDate)
 
   const isRightSignature = await challengeVerify(challengeSig)
   if (!isRightSignature) {
@@ -404,7 +436,7 @@ app.post('/api/createCertificateVC', async (req, res) => {
 
   const now = (await PROVIDER.getBlock('latest')).timestamp
   const metadata = {
-    name: 'Крипто$лоня₽ы Collection Digital Certificate',
+    name: 'DONS Collection Certificate',
     image: imageLink,
     description: "Metadata of a company employee's digital certificate.",
     vc: {
@@ -440,23 +472,140 @@ app.post('/api/createCertificateVC', async (req, res) => {
     })
 })
 
+const getWalletAddr = (a) => {
+  return a?.split(':')[3]}
+
 app.post('/api/getIpfsInfo', async (req,res) => {
   const  { ipfsLink } =req.body
 
-  console.log('IPFS linnks', ipfsLink)
 
 
-  const promises = ipfsLink.map(item => pinata.gateways.get(item.split('ipfs/')[1])
-  )
+  const promises = ipfsLink.map(item => {
+    
+    return pinata.gateways.get(item.split('ipfs/')[1]).then((data) => {
+
+      return {link: item, data}
+    })
+  })
+  
+  // MAIN CERTIFICATE REVIEW
+
+
+
+
 
 const resp = await Promise.all(promises)
+
+
+let responseFinalle = []
+
+  for(let i = 0 ; i < resp.length; i++) {
+    if (resp[i].data?.data.vc.credentialSubject?.data?.type) {
+      if (resp[i].data?.data.vc.credentialSubject?.data?.type === 'MAIN') {
+        let test = resp[i].data?.data
+        responseFinalle.push({
+          bigId: resp[i].link,
+          walletAddr :  getWalletAddr(resp[i].data?.data?.vc?.credentialSubject?.id),
+          type: 'MAIN',
+          fullName: resp[i].data?.data?.vc?.credentialSubject?.data?.fullName,
+          jobTitle: resp[i].data?.data?.vc?.credentialSubject?.data?.jobTitle,
+          skills: resp[i].data?.data?.vc?.credentialSubject?.data?.skills,
+          dateOfHire: resp[i].data?.data?.vc?.credentialSubject?.data?.dateOfHire,
+          image:   resp[i].data?.data?.image
+        })
+      }
+// "data": {
+//   "name": "Крипто$лоня₽ы Collection Digital Certificate",
+//   "image": "https://ipfs.io/ipfs/bafybeidiokwtrgaujrjuccdyxxbmas6hzdzprt32ddow42da3fhkj5wuwi",
+//   "description": "Metadata of a company employee's digital certificate.",
+//   "vc": {
+//       "type": [
+//           "VerifiableCredential"
+//       ],
+//       "issuer": {
+//           "id": "did:ethr:97:0x09A4483934C321e7a1a89c00A2cF2ef882CC6256"
+//       },
+//       "issuanceDate": "1729426440",
+//       "credentialSubject": {
+//           "id": "did:ethr:97:0x09a4483934c321e7a1a89c00a2cf2ef882cc6256",
+//           "data": {
+//               "type": "CERTIFICATE",
+//               "certificateId": "771",
+//               "receiptDate": 1729198800
+//           }
+//       }
+//   },
+//   "issuerSignature": "0x3059e31af2663bea92248924559178d4afcfee94e3b135cd9cfd5e5c6d16ec0054593209ef6f653490518715f943186d7bfe3c308ac35c15ef0a35f42c9a95ba1c"
+// },
+
+        if (resp[i].data?.data.vc.credentialSubject?.data?.type === 'CERTIFICATE') {
+
+    let address = getWalletAddr(resp[i].data?.data?.vc?.credentialSubject?.id)
+
+          let userInfo = await usersInfo.findOne({"address": getWalletAddr(resp[i].data?.data?.vc?.credentialSubject?.id?.toLowerCase())});
+          let test = resp[i].data?.data
+
+     
+          responseFinalle.push({
+            bigId: resp[i].link,
+
+            type: 'CERTIFICATE',
+            fullName: userInfo?.fullName,
+            imageUser: userInfo?.image,
+            certId: resp[i].data?.data?.vc?.credentialSubject?.data.certificateId,
+            dateCreation: resp[i].data?.data?.vc?.credentialSubject?.receiptDate,
+            imageCert: resp[i].data?.data?.image,
+          })
+        }
+
+    //  на кого   "id": "did:ethr:97:0x723c39bB483F558A548652b81a87CdBbbE9FEF48",
+    //     "data": {
+    //         "type": "REVIEW",
+    //    от кого     "from": "did:ethr:97:0x09a4483934c321e7a1a89c00a2cf2ef882cc6256",
+    //         "reviewText": "21r3fr32",
+    //         "reviewType": 1
+    //     }
+    // }
+        
+        if (resp[i].data?.data.vc.credentialSubject?.data?.type === 'REVIEW') {
+
+          let test = resp[i].data?.data?.vc?.credentialSubject;
+
+          let reviewFrom = getWalletAddr(resp[i].data?.data?.vc?.credentialSubject?.data.from)
+          let reviewTo =  getWalletAddr(resp[i].data?.data?.vc?.credentialSubject?.id)
+
+          let userInfoTo =   await usersInfo.findOne({"address": reviewTo.toLowerCase()});
+          
+          let userInfoFrom = await usersInfo.findOne({"address": reviewFrom.toLowerCase()});
+
+
+          responseFinalle.push({
+            bigId: resp[i].link,
+            type: 'REVIEW',
+            reviewFromFullName: userInfoFrom?.fullName,
+            reviewFromImage :userInfoFrom?.image,
+            reviewFrom : reviewFrom,
+            reviewTo: reviewTo,
+            reivewToFullName: userInfoTo?.fullName,
+            reivewToImage: userInfoTo?.image,
+            reviewText: resp[i].data?.data?.vc?.credentialSubject?.data?.reviewText,
+            reviewType: resp[i].data?.data?.vc?.credentialSubject?.data?.reviewType,
+
+            dateCreation: resp[i].data?.data?.vc?.credentialSubject?.receiptDate,
+
+          })
+        }
+      }
+    
+    
+  }
 
 
   res
     .status(200)
     .json({
       message: 'All ok',
-      data: {resp}
+      data: {responseFinalle, resp}
     })
 
 })
@@ -472,7 +621,7 @@ app.post('/api/createReviewVC', async (req, res) => {
 
   const now = (await PROVIDER.getBlock('latest')).timestamp
   const metadata = {
-    name: 'Крипто$лоня₽ы Collection Digital Review',
+    name: 'DONS Collection Review',
     description: "Metadata of a company employee's digital review.",
     vc: {
       type: ['VerifiableCredential'],

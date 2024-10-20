@@ -8,6 +8,7 @@ import axios from 'axios'
 import { redirect } from 'react-router-dom'
 import { eraseCookie, getCookie, setCookie } from '../pages/AuthPage'
 import { getCertificatesQueue, getReviewsQueue } from '../api'
+import { DATA } from '../pages/UserProfilePage'
 
 // Define types for the context state
 interface AppContextProps {
@@ -75,7 +76,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null)
   const [isHolder, setIsHolder] = useState<boolean | null>(null)
   const [myNftData, setMyNftData] = useState<any | null>(null)
-
+  const [myMainNft, setMyMainNft] = useState<any | null>(null)
 
   const [certificatesData, setCertificatesData] = useState<any | null>(null)
   const [reviewsData, setReviewsData] = useState<any | null>(null)
@@ -86,7 +87,6 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     if (provider) return provider
 
     const newProvider = new Web3Provider(window.ethereum)
-    console.log(newProvider)
 
     setProvider(newProvider)
 
@@ -139,14 +139,17 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     if (account) {
     const isHolder= await isNftHolder(account)
     setIsHolder(isHolder)
-    console.log('ISHOLDER', isHolder)
+    if (account && myNftData){
+      setMyMainNft((myNftData.data?.responseFinalle as DATA[]).find(item => item && item?.walletAddr && (account?.toLowerCase() === item?.walletAddr.toLowerCase() && item?.type === 'MAIN')))
+      console.log('zzzz',(myNftData.data?.responseFinalle as DATA[]).find(item => item && item?.walletAddr && (account?.toLowerCase() === item?.walletAddr.toLowerCase() && item?.type === 'MAIN')))
+
+    }
     }
   }, [account])
 
   const getAllNftsInfoMain =useCallback(async () => {
       const data  = await getAllNftsInfo()
       
-      console.log('DAT', data)
       let responseData: any = null
 
 
@@ -157,19 +160,19 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
 
         const preparedData = data.map((item) => item.tokenUri)
 
-        // const response = await axios.post(
-        //   'http://localhost:5000/api/getIpfsInfo',
-        //   {ipfsLink : preparedData}
-        // )
-        // responseData = response.data
-        // console.log("RESP FROM BACK", response.data);
+        const response = await axios.post(
+          'http://localhost:5000/api/getIpfsInfo',
+          {ipfsLink : preparedData}
+        )
+        responseData = response.data
 
 
-        // setMyNftData(responseData)
 
-        // alert(`BACKEND SUCCESS: ${IPFS_BASE_LINK + responseData.data.ipfsHash}`)
+
+        setMyNftData(responseData)
+        
       } catch (error) {
-        alert('BACKEND ERROR')
+        alert(`BACKEND ERROR ${error}`) 
         return
       }
       
@@ -180,9 +183,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     const dataCertificates  = await getCertificatesQueue()
     const dataReviews = await getReviewsQueue()
 
-    console.log('data getcertificatesque', dataCertificates)
-    console.log('data getreviewsque', dataReviews)
-
+   
     setReviewsData(dataReviews)
     setCertificatesData(dataCertificates)
 
@@ -290,6 +291,9 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       getIsHolder()
       // getAllNftsInfo()
 
+
+       
+   
    }, [account])
 
   return (

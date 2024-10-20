@@ -15,7 +15,10 @@ import {
   ListItemAvatar,
   Avatar,
   Switch,
+  Divider,
 } from '@mui/material';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+
 import {cloneDeep} from 'lodash';
 import { useAppContext } from '../context/AppContext';
 import dayjs from 'dayjs';
@@ -33,13 +36,7 @@ interface UserData {
   image: string;
 }
 
-// Mock Data: Replace this with your actual user data
-const mockData: UserData[] = [
-    { id: 1, name: 'Alice', age: 25, date: '2023-09-15', image: 'https://ipfs.io/ipfs/bafkreif74aqep2ecv4zqd4taskvxdi7e4zjb26x2sya3noltpc6zau32s4' },
-    { id: 2, name: 'Bob', age: 30, date: '2023-07-12', image: 'https://ipfs.io/ipfs/bafkreif74aqep2ecv4zqd4taskvxdi7e4zjb26x2sya3noltpc6zau32s4' },
-    { id: 3, name: 'Charlie', age: 22, date: '2023-10-01', image: 'https://ipfs.io/ipfs/bafkreif74aqep2ecv4zqd4taskvxdi7e4zjb26x2sya3noltpc6zau32s4' },
-    { id: 4, name: 'David', age: 28, date: '2023-08-21', image: 'https://ipfs.io/ipfs/bafkreif74aqep2ecv4zqd4taskvxdi7e4zjb26x2sya3noltpc6zau32s4' },
-  ];
+
 
 const MyDataPage: React.FC = () => {
   const {
@@ -51,8 +48,18 @@ const MyDataPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState(''); // Filter term
   const [sortField, setSortField] = useState<keyof UserData>('name'); // Field to sort by
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc'); // Sort order (asc or desc)
+  const [sortRType,sortFieldReviewType] = useState<number | null | string>(null)
 
-
+  const handleCopyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text).then(
+      () => {
+        alert(`${text} copied to clipboard!`);
+      },
+      (err) => {
+        alert(`Failed to copy: ' ${err}`);
+      }
+    );
+  };
 
  
 
@@ -62,14 +69,43 @@ const MyDataPage: React.FC = () => {
 
 
   // Filter and sort logic
-  const handleFilterAndSort = () => {
+  const handleFilterAndSort = async() => {
     let filteredData = data;
+
+    if (isQueuesState && isCertificates) {
+      filteredData = cloneDeep(certificatesData);
+
+      
+    }
+    else if (isQueuesState && !isCertificates){
+
+      filteredData = cloneDeep(reviewsData);
+    }
 
     // Filter: If searchTerm is not empty, filter the data
     if (searchTerm) {
-      filteredData = filteredData.filter((item) =>
-        item.name.toLowerCase().includes(searchTerm.toLowerCase())
-      );
+   
+
+      filteredData = filteredData.filter((item) => {
+
+        if (item?.fullName) {
+        return item.fullName.toLowerCase().includes(searchTerm.toLowerCase())
+        }
+
+        if (item?.fullNameTo) {
+          return item.fullNameTo.toLowerCase().includes(searchTerm.toLowerCase())
+        }
+      
+      })
+      
+    }
+
+    if (!isCertificates && sortRType) {
+      filteredData = filteredData.filter((item) => {
+
+       return  item?.reviewType === sortRType
+      
+      })
     }
 
     // Sort: Sort by the selected field and order
@@ -129,14 +165,12 @@ const MyDataPage: React.FC = () => {
 
     let responseData: any = null
     try {
-      console.log(values);
       
       const response = await axios.post(
         'http://localhost:5000/api/createCertificateVC',
         {imageLink: values.imageLink, workerAddr: values.workerAddr, certificateId: values.certificateId, receiptDate: values.receiptDate, challengeSig: signature}
       ) 
       responseData = response.data
-      console.log("RESP FROM BACK", response.data);
       alert(`BACKEND SUCCESS: ${IPFS_BASE_LINK + responseData.data.ipfsHash}`)
     } catch (error) {
       alert('BACKEND ERROR')
@@ -153,7 +187,6 @@ const MyDataPage: React.FC = () => {
         txWaited = await tx.wait()
         alert(`TX SUCCESS: ${SCANNER_LINK + tx.hash}`)
       } catch (error) {
-        console.log(error)
         alert('WHY REJECT??')
       }
     }
@@ -203,7 +236,6 @@ const MyDataPage: React.FC = () => {
         {reviewFrom: values.reviewFrom, reviewTo: values.reviewTo, reviewText: values.reviewText, reviewType: values.reviewType, challengeSig: signature}
       ) 
       responseData = response.data
-      console.log("RESP FROM BACK", response.data);
       alert(`BACKEND SUCCESS: ${IPFS_BASE_LINK + responseData.data.ipfsHash}`)
     } catch (error) {
       alert('BACKEND ERROR')
@@ -236,7 +268,6 @@ const MyDataPage: React.FC = () => {
     }
     
     if (response == 200) {
-      console.log("RESP", response);
       
       alert('транза прошла, в дб флаг поменяли, на этом моменте кнопку у этого итема можно убирать')
       return
@@ -272,6 +303,21 @@ const MyDataPage: React.FC = () => {
           <MenuItem value="date">Date</MenuItem>
         </Select>
       </FormControl>
+
+  {!isCertificates && (
+    <FormControl fullWidth margin="normal">
+    <InputLabel>Тип отзыва</InputLabel>
+    <Select
+      value={sortRType}
+      onChange={(e) => sortFieldReviewType(e.target.value as string)}
+    >
+      <MenuItem value={0}>Положительный</MenuItem>
+      <MenuItem value={1}>Нейтральный</MenuItem>
+      <MenuItem value={2}>Отрицательный</MenuItem>
+    </Select>
+  </FormControl>
+  )}
+     
 
       {/* Sort: Dropdown for sorting order */}
       <FormControl fullWidth margin="normal">
@@ -351,8 +397,10 @@ const MyDataPage: React.FC = () => {
               
               if (isCertificates) {
                 return(
+                  <>
                   <ListItem key={item._id} sx={{ display: 'flex', justifyContent: 'space-between' }}>
                   {/* Avatar for image */}
+                  Сертификат
                   <ListItemAvatar>
                       <div onClick={() => window.open(item.imageLink)}>
                     <Avatar src={item.imageLink} alt={item.name} />
@@ -361,9 +409,18 @@ const MyDataPage: React.FC = () => {
   
                   {/* User Info */}
                   <ListItemText
-                    primary={`${item.workerAddr}, id сертификата: ${item.certificateId}, Date: ${dayjs(item.receiptDate)}`}
+                    primary={`Обладатель ${item.fullName}, id сертификата: ${item.certificateId}, Date: ${dayjs(item.receiptDate)}`}
                   />
   
+  <Button
+          variant="outlined"
+          startIcon={<ContentCopyIcon />}
+          onClick={() => handleCopyToClipboard(item.workerAddr)}
+          sx={{ marginTop: '8px' }}
+        >
+          Адрес
+          </Button>
+
                   {/* Button for each list item */}
                   {!item.isAccepted && (
                     <Button
@@ -376,11 +433,15 @@ const MyDataPage: React.FC = () => {
                   )}
                   
                 </ListItem>
+                <Divider  variant="middle" flexItem />
+
+                </>
               )
               }
               
               return(
-                <ListItem key={item._id} sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                <>
+                <ListItem key={item._id} sx={{ display: 'flex',  justifyContent: 'space-between' }}>
                 {/* Avatar for image */}
                 {/* <ListItemAvatar>
                     <div onClick={() => window.open(item.image)}>
@@ -389,9 +450,83 @@ const MyDataPage: React.FC = () => {
                 </ListItemAvatar> */}
 
                 {/* User Info */}
-                <ListItemText
+                {/* <ListItemText
                   primary={`От кого ${item.reviewFrom}, На кого ${item.reviewTo}, Date: x`}
-                />
+                /> */}
+                
+          <Box>
+
+          <Button
+          variant="outlined"
+          startIcon={<ContentCopyIcon />}
+          onClick={() => handleCopyToClipboard(item.reviewFrom)}
+          sx={{ marginTop: '8px' }}
+        >
+          {item?.fullNameFrom ? 
+          (         <>
+                              <Avatar src={item.imageFrom}  />
+
+          {`От ${item?.fullNameFrom}`}
+
+          </>
+          ): (`От ${item?.reviewFrom}`)
+        }
+          </Button>    
+
+   
+          <Button
+          variant="outlined"
+          startIcon={<ContentCopyIcon />}
+          onClick={() => handleCopyToClipboard(item.reviewTo)}
+          sx={{ marginTop: '8px' }}
+        >
+
+          {item?.fullNameTo ? 
+          (        <> 
+                              <Avatar src={item.imageFrom}  />
+
+          `На {item?.fullNameTo}`
+
+          </>
+          ): (`На ${item?.reviewTo}`)
+        }
+          </Button>  
+          <Typography>{item?.reviewText}</Typography>
+          {item?.reviewType === 0 && (
+              <Typography sx={{color: 'green'}}>
+                Положительный
+                </Typography>
+          )}
+              {item?.reviewType === 1 && (
+              <Typography sx={{color: 'grey'}}>
+                Нейтральный
+                </Typography>
+          )}
+               {item?.reviewType === 2 && (
+              <Typography sx={{color: 'red'}}>
+Негативный                </Typography>
+          )}
+        
+          </Box>
+          
+           
+
+{/* <Button
+          variant="outlined"
+          startIcon={<ContentCopyIcon />}
+          onClick={() => handleCopyToClipboard(item.workerAddr)}
+          sx={{ marginTop: '8px' }}
+        >
+          
+          </Button>
+          <Button
+          variant="outlined"
+          startIcon={<ContentCopyIcon />}
+          onClick={() => handleCopyToClipboard(item.workerAddr)}
+          sx={{ marginTop: '8px' }}
+        >
+          Адрес
+          </Button>     */}
 
                 {/* Button for each list item */}
                 {!item.isAccepted && (
@@ -405,6 +540,8 @@ const MyDataPage: React.FC = () => {
                 )}
                
               </ListItem>
+              <Divider  variant="middle" flexItem />
+                </>
             )})
           ) : ( 
             <Typography>Данных не найдено</Typography>

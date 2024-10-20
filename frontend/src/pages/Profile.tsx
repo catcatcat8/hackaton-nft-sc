@@ -98,19 +98,10 @@ const Profile: React.FC = () => {
       return
     }
 
-    // if (!ethers.utils.isAddress(values.walletAddr)) {
-    //   alert('WTF? ITS NOT ETH ADDR')
-    //   return
-    // }
-    // if (!isIPFS.cid(values.ipfsLink)) {
-    //   alert('WTF? NOT IPFS LINK')
-    //   return
-    // }
-    console.log(0);
+   
     let imageLink: string = ''
     try {
       const upload = await PINATA.upload.file(selectedFile)
-      console.log(5);
       imageLink = IPFS_BASE_LINK + upload.IpfsHash
       alert(`hash загруженной на ипфс картинки ${IPFS_BASE_LINK + upload.IpfsHash}`)
     } catch (error) {
@@ -125,7 +116,6 @@ const Profile: React.FC = () => {
         {imageLink: imageLink, workerAddr: values.walletAddr, skills: values.skills, jobTitle: values.jobTitle, fullName: values.fullName, dateOfHire: values.dateOfHire, challengeSig: signature}
       ) 
       responseData = response.data
-      console.log("RESP FROM BACK", response.data);
       alert(`BACKEND SUCCESS: ${IPFS_BASE_LINK + responseData.data.ipfsHash}`)
     } catch (error) {
       alert('BACKEND ERROR')
@@ -133,7 +123,6 @@ const Profile: React.FC = () => {
     }
 
     if (responseData) {
-      console.log("singer ti tyt?", signer, await signer?.getAddress());
       
       try {
         const tx = await NFT_CONTRACT.connect(signer!).mint(

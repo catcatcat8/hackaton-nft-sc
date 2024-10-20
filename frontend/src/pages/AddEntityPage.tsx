@@ -59,7 +59,6 @@ const AddEntityPage: React.FC = () => {
   // Handle form submission
   const handleFormOneSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Form One Data:', formOneData);
 
     try {
       const response = await axios.post(
@@ -79,8 +78,6 @@ const AddEntityPage: React.FC = () => {
 
   const handleFormTwoSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Form Two Data:', formTwoData);
-    console.log ('DATe' , formTwoData.date?.toDate())
 
     if (!formTwoData.file) {
       alert('NO FILE TO UPLOAD')

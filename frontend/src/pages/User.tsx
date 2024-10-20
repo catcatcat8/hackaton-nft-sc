@@ -54,7 +54,6 @@ const Profile: React.FC = () => {
     //   return
     // }
     try {
-      console.log('signer', signer)
 
       const tx = await NFT_CONTRACT.connect(signer!).mint(
         values.walletAddr,
