@@ -21,9 +21,7 @@ const Home: React.FC = () => {
       ) : (
         <Typography variant="body1">Please connect your MetaMask wallet.</Typography>
       )}
-      <button onClick={() => onTestBackend()}>
-        KEK
-      </button>
+   
     </div>
   );
 };

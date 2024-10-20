@@ -25,7 +25,6 @@ const options = {
 
 
 const mongoClient = MongoClient.connect(url, options, function(err, conn) {
-    console.log('=====!', err)
 
     if (conn.isConnected()) {
         const db = conn.db(DB_NAME)

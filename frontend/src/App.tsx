@@ -36,7 +36,7 @@ const App: React.FC = () => {
               </Link>
             )}
            
-              {isHolder && isAdmin && (  <Link to="/my-data" style={{ color: '#fff', textDecoration: 'none', marginRight: '10px' }}>
+              {isAdmin && (  <Link to="/my-data" style={{ color: '#fff', textDecoration: 'none', marginRight: '10px' }}>
                 Мои данные
               </Link>)}
             

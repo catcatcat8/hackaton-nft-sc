@@ -369,11 +369,12 @@ app.post('/api/createMainVC', async (req, res) => {
   const isRightSignature = await challengeVerify(challengeSig)
   if (!isRightSignature) {
     res.status(401).json({ message: 'Wrong signature', data: {} })
+    return;
   }
 
   const now = (await PROVIDER.getBlock('latest')).timestamp
   const metadata = {
-    name: 'Крипто$лоня₽ы Collection Digital Profile',
+    name: 'DONS Collection Main',
     image: imageLink,
     description: "Metadata of a company employee's digital profile.",
     vc: {
@@ -435,7 +436,7 @@ app.post('/api/createCertificateVC', async (req, res) => {
 
   const now = (await PROVIDER.getBlock('latest')).timestamp
   const metadata = {
-    name: 'Крипто$лоня₽ы Collection Digital Certificate',
+    name: 'DONS Collection Certificate',
     image: imageLink,
     description: "Metadata of a company employee's digital certificate.",
     vc: {
@@ -472,13 +473,11 @@ app.post('/api/createCertificateVC', async (req, res) => {
 })
 
 const getWalletAddr = (a) => {
-  console.log('A', a)
-  return a?.split(':')[2]?.concat(a?.split(':')[3])}
+  return a?.split(':')[3]}
 
 app.post('/api/getIpfsInfo', async (req,res) => {
   const  { ipfsLink } =req.body
 
-  // console.log('IPFS linnks', ipfsLink)
 
 
   const promises = ipfsLink.map(item => {
@@ -506,12 +505,13 @@ let responseFinalle = []
         let test = resp[i].data?.data
         responseFinalle.push({
           bigId: resp[i].link,
-
+          walletAddr :  getWalletAddr(resp[i].data?.data?.vc?.credentialSubject?.id),
           type: 'MAIN',
           fullName: resp[i].data?.data?.vc?.credentialSubject?.data?.fullName,
           jobTitle: resp[i].data?.data?.vc?.credentialSubject?.data?.jobTitle,
           skills: resp[i].data?.data?.vc?.credentialSubject?.data?.skills,
-          dateOfHire: resp[i].data?.data?.vc?.credentialSubject?.data?.dateOfHire
+          dateOfHire: resp[i].data?.data?.vc?.credentialSubject?.data?.dateOfHire,
+          image:   resp[i].data?.data?.image
         })
       }
 // "data": {
@@ -539,7 +539,10 @@ let responseFinalle = []
 // },
 
         if (resp[i].data?.data.vc.credentialSubject?.data?.type === 'CERTIFICATE') {
-          let userInfo = await usersInfo.findOne({"address": getWalletAddr(resp[i].data?.data?.vc?.credentialSubject?.id)});
+
+    let address = getWalletAddr(resp[i].data?.data?.vc?.credentialSubject?.id)
+
+          let userInfo = await usersInfo.findOne({"address": getWalletAddr(resp[i].data?.data?.vc?.credentialSubject?.id?.toLowerCase())});
           let test = resp[i].data?.data
 
      
@@ -565,13 +568,16 @@ let responseFinalle = []
     // }
         
         if (resp[i].data?.data.vc.credentialSubject?.data?.type === 'REVIEW') {
-          let reviewFrom = getWalletAddr(resp[i].data?.data?.vc?.credentialSubject?.data.certificateId)
-          let reviewTo =  getWalletAddr(resp[i].data?.data?.vc?.credentialSubject?.id)
-         
-          let userInfoFrom = await usersInfo.findOne({"address": reviewFrom});
-          let userInfoTo =   await usersInfo.findOne({"address": reviewTo});
 
-          let test = resp[i].data?.data
+          let test = resp[i].data?.data?.vc?.credentialSubject;
+
+          let reviewFrom = getWalletAddr(resp[i].data?.data?.vc?.credentialSubject?.data.from)
+          let reviewTo =  getWalletAddr(resp[i].data?.data?.vc?.credentialSubject?.id)
+
+          let userInfoTo =   await usersInfo.findOne({"address": reviewTo.toLowerCase()});
+          
+          let userInfoFrom = await usersInfo.findOne({"address": reviewFrom.toLowerCase()});
+
 
           responseFinalle.push({
             bigId: resp[i].link,
@@ -582,7 +588,9 @@ let responseFinalle = []
             reviewTo: reviewTo,
             reivewToFullName: userInfoTo?.fullName,
             reivewToImage: userInfoTo?.image,
-            reviewText: resp[i].data?.data?.vc?.credentialSubject?.reviewText,
+            reviewText: resp[i].data?.data?.vc?.credentialSubject?.data?.reviewText,
+            reviewType: resp[i].data?.data?.vc?.credentialSubject?.data?.reviewType,
+
             dateCreation: resp[i].data?.data?.vc?.credentialSubject?.receiptDate,
 
           })
@@ -613,7 +621,7 @@ app.post('/api/createReviewVC', async (req, res) => {
 
   const now = (await PROVIDER.getBlock('latest')).timestamp
   const metadata = {
-    name: 'Крипто$лоня₽ы Collection Digital Review',
+    name: 'DONS Collection Review',
     description: "Metadata of a company employee's digital review.",
     vc: {
       type: ['VerifiableCredential'],

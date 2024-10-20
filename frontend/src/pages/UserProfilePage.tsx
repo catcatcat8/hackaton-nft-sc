@@ -18,8 +18,30 @@ import dayjs from 'dayjs';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 
 
-interface DATA {
+export interface DATA {
+  bigId: string,
+  dateOfHire?: string,
+  fullName?:string ,
+  image?: string,
+  jobTitle?: string,
+  skills?: string,
+  type?:string
 
+  
+reivewToFullName?: string
+reivewToImage?: string
+reviewFrom?: string
+reviewFromFullName?: string
+reviewFromImage?: string,
+reviewTo?: string
+reviewText?: string,
+reviewType?: number
+
+
+certId?: string
+imageCert?: string
+imageUser?: string
+walletAddr?: string
 }
 
 
@@ -53,6 +75,9 @@ interface DATA {
         }
       );
     };
+
+
+    
 
     return (
       <Box sx={{ maxWidth: '800px', margin: '0 auto', padding: '24px' }}>
@@ -110,42 +135,83 @@ interface DATA {
         <Typography variant="h5" gutterBottom>
           Результат
         </Typography>
-        {/* <List>
-          {data.data.resp && data.data.resp > 0 ? (
-            data.data.responseFinalle.map((item) => {
+        {data?.data && (
+          <List>
+          {data.data.responseFinalle  && data.data.responseFinalle.length > 0 ? (
+            (data.data.responseFinalle as DATA[]).map((item, i) => {
               
-              if (item) {
+              if (item && item.type === "MAIN") {
+                
+                return (
+                  <>
+                  <ListItem key={i} sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <Button
+          variant="outlined"
+          startIcon={<ContentCopyIcon />}
+          onClick={() => handleCopyToClipboard(item.bigId || '')}
+          sx={{ marginTop: '8px' }}>
+            IPFS
+          </Button>
+                  {`Имя ${item.fullName}`}
+                  <ListItemAvatar>
+                      <div onClick={() => window.open(item.image)}>
+                    <Avatar src={item.image}  />
+                    </div>
+                  </ListItemAvatar>
+                  <Box>
+                  <ListItemText
+                    primary={`Должность ${item.jobTitle}`}
+                  />
+
+                  <ListItemText
+                    primary={`Навыки ${item.skills}`}
+                  />
+                  </Box>
+  
+
+
+                
+                  
+                </ListItem>
+                <Divider  variant="middle" flexItem />
+                </>
+                )
+
+
+              }
+
+              if (item && item.type==="CERTIFICATE") {
                 return(
                   <>
-                  <ListItem key={item._id} sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                  Сертификат
+                  <ListItem key={i} sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <Button
+          variant="outlined"
+          startIcon={<ContentCopyIcon />}
+          onClick={() => handleCopyToClipboard(item.bigId || '')}
+          sx={{ marginTop: '8px' }}>
+            IPFS
+          </Button>
+                  {`Сертификат ${item.certId}`}
                   <ListItemAvatar>
-                      <div onClick={() => window.open(item.imageLink)}>
-                    <Avatar src={item.imageLink} alt={item.name} />
+                      <div onClick={() => window.open(item.imageCert)}>
+                    <Avatar src={item.imageCert}  />
                     </div>
                   </ListItemAvatar>
   
                   <ListItemText
-                    primary={`Обладатель ${item.fullName}, id сертификата: ${item.certificateId}, Date: ${dayjs(item.receiptDate)}`}
+                    primary={`Обладатель ${item.fullName}, id сертификата: ${item.certId}`}
                   />
   
   <Button
           variant="outlined"
           startIcon={<ContentCopyIcon />}
-          onClick={() => handleCopyToClipboard(item.workerAddr)}
+          onClick={() => handleCopyToClipboard(item.certId  || '')}
           sx={{ marginTop: '8px' }}
         >
           Адрес
           </Button>
 
-                  {!item.isAccepted && (
-                    <Button
-                    variant="contained"
-                    color="secondary"
-                  >
-                    Подтвердить
-                  </Button>
-                  )}
+                
                   
                 </ListItem>
                 <Divider  variant="middle" flexItem />
@@ -156,25 +222,31 @@ interface DATA {
               
               return(
                 <>
-                <ListItem key={item._id} sx={{ display: 'flex',  justifyContent: 'space-between' }}>
-               
+                <ListItem key={i} sx={{ display: 'flex',  justifyContent: 'space-between' }}>
+                <Button
+          variant="outlined"
+          startIcon={<ContentCopyIcon />}
+          onClick={() => handleCopyToClipboard(item.bigId || '')}
+          sx={{ marginTop: '8px' }}>
+            IPFS
+          </Button>
                 
           <Box>
 
           <Button
           variant="outlined"
           startIcon={<ContentCopyIcon />}
-          onClick={() => handleCopyToClipboard(item.reviewFrom)}
+          onClick={() => handleCopyToClipboard(item.reviewFrom || '')}
           sx={{ marginTop: '8px' }}
         >
-          {item?.fullNameFrom ? 
+          {item?.reviewFromFullName ? 
           (         <>
-                              <Avatar src={item.imageFrom}  />
+                              <Avatar src={item.reviewFromImage}  />
 
-          {`От ${item?.fullNameFrom}`}
+          {`От ${item?.reviewFromFullName}`}
 
           </>
-          ): (`От ${item?.reviewFrom}`)
+          ): (`От ${item?.reviewFromFullName}`)
         }
           </Button>    
 
@@ -182,15 +254,15 @@ interface DATA {
           <Button
           variant="outlined"
           startIcon={<ContentCopyIcon />}
-          onClick={() => handleCopyToClipboard(item.reviewTo)}
+          onClick={() => handleCopyToClipboard(item.reviewTo || '')}
           sx={{ marginTop: '8px' }}
         >
 
-          {item?.fullNameTo ? 
+          {item?.reivewToFullName ? 
           (        <> 
-                              <Avatar src={item.imageFrom}  />
+                              <Avatar src={item.reivewToImage}  />
 
-          `На ${item?.fullNameTo}`
+          `На {item?.reivewToFullName}`
 
           </>
           ): (`На ${item?.reviewTo}`)
@@ -226,7 +298,11 @@ interface DATA {
           ) : ( 
             <Typography>Данных не найдено</Typography>
           )}
-        </List> */}
+        </List>
+
+        )}
+
+        
       </Box>
       </Box>
     );

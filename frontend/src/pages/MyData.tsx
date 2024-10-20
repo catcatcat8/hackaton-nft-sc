@@ -82,7 +82,6 @@ const MyDataPage: React.FC = () => {
       filteredData = cloneDeep(reviewsData);
     }
 
-    console.log('DATA', data, 'filtereddata', filteredData)
     // Filter: If searchTerm is not empty, filter the data
     if (searchTerm) {
    
@@ -166,14 +165,12 @@ const MyDataPage: React.FC = () => {
 
     let responseData: any = null
     try {
-      console.log(values);
       
       const response = await axios.post(
         'http://localhost:5000/api/createCertificateVC',
         {imageLink: values.imageLink, workerAddr: values.workerAddr, certificateId: values.certificateId, receiptDate: values.receiptDate, challengeSig: signature}
       ) 
       responseData = response.data
-      console.log("RESP FROM BACK", response.data);
       alert(`BACKEND SUCCESS: ${IPFS_BASE_LINK + responseData.data.ipfsHash}`)
     } catch (error) {
       alert('BACKEND ERROR')
@@ -190,7 +187,6 @@ const MyDataPage: React.FC = () => {
         txWaited = await tx.wait()
         alert(`TX SUCCESS: ${SCANNER_LINK + tx.hash}`)
       } catch (error) {
-        console.log(error)
         alert('WHY REJECT??')
       }
     }
@@ -240,7 +236,6 @@ const MyDataPage: React.FC = () => {
         {reviewFrom: values.reviewFrom, reviewTo: values.reviewTo, reviewText: values.reviewText, reviewType: values.reviewType, challengeSig: signature}
       ) 
       responseData = response.data
-      console.log("RESP FROM BACK", response.data);
       alert(`BACKEND SUCCESS: ${IPFS_BASE_LINK + responseData.data.ipfsHash}`)
     } catch (error) {
       alert('BACKEND ERROR')
@@ -273,7 +268,6 @@ const MyDataPage: React.FC = () => {
     }
     
     if (response == 200) {
-      console.log("RESP", response);
       
       alert('транза прошла, в дб флаг поменяли, на этом моменте кнопку у этого итема можно убирать')
       return
@@ -491,7 +485,7 @@ const MyDataPage: React.FC = () => {
           (        <> 
                               <Avatar src={item.imageFrom}  />
 
-          `На ${item?.fullNameTo}`
+          `На {item?.fullNameTo}`
 
           </>
           ): (`На ${item?.reviewTo}`)
