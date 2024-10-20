@@ -260,6 +260,27 @@ app.post('/api/createCertificateVC', async (req, res) => {
     })
 })
 
+app.post('/api/getIpfsInfo', async (req,res) => {
+  const  { ipfsLink } =req.body
+
+  console.log('IPFS linnks', ipfsLink)
+
+
+  const promises = ipfsLink.map(item => pinata.gateways.get(item.split('ipfs/')[1])
+  )
+
+const resp = await Promise.all(promises)
+
+
+  res
+    .status(200)
+    .json({
+      message: 'All ok',
+      data: {resp}
+    })
+
+})
+
 app.post('/api/createReviewVC', async (req, res) => {
   const { reviewFrom, reviewTo, reviewText, reviewType, challengeSig } =
     req.body
@@ -306,6 +327,9 @@ app.post('/api/createReviewVC', async (req, res) => {
       data: { metadata, ipfsHash },
     })
 })
+
+
+
 
 // Start the server
 const PORT = process.env.PORT || 5000

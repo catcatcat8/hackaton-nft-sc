@@ -122,7 +122,7 @@ const Profile: React.FC = () => {
       const response = await axios.post(
         'http://localhost:5000/api/createMainVC',
         {imageLink: imageLink, workerAddr: values.walletAddr, skills: values.skills, jobTitle: values.jobTitle, fullName: values.fullName, dateOfHire: values.dateOfHire, challengeSig: signature}
-      )
+      ) 
       responseData = response.data
       console.log("RESP FROM BACK", response.data);
       alert(`BACKEND SUCCESS: ${IPFS_BASE_LINK + responseData.data.ipfsHash}`)
