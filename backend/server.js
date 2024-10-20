@@ -36,7 +36,8 @@ const DB_HOSTS = [
 
 const DB_USER  = process.env.DB_USER
 const DB_PASS  = process.env.DB_PASS
-const CACERT   = '/home/lebedev666e/.mongodb/root.crt'
+const DB_HOME = process.env.DB_HOME
+const CACERT   = `/home/${DB_HOME}/.mongodb/root.crt`
 
 const url = util.format('mongodb://%s:%s@%s/', DB_USER, DB_PASS, DB_HOSTS.join(','))
 
