@@ -217,8 +217,14 @@ app.post('/api/insertCertificate', async (req, res) => {
 })
 
 app.post('/api/acceptReview', async (req, res) => {
-  const { id } =
+  const { id, idSig } =
     req.body
+
+    const signerAddr = await ethers.utils.verifyMessage(id, idSig)
+    if (signerAddr.toLowerCase() != ISSUER_WALLET.address.toLowerCase()) {
+      res.status(401).json({ message: 'Wrong signature', data: {} })
+      return
+    }
 
     try {
       await reviewsQueue.updateOne({"_id": new ObjectId(id.toString())}, {"$set": {"isAccepted": true}})
@@ -237,8 +243,14 @@ app.post('/api/acceptReview', async (req, res) => {
 })
 
 app.post('/api/acceptCertificate', async (req, res) => {
-  const { id } =
+  const { id, idSig } =
     req.body
+   
+    const signerAddr = await ethers.utils.verifyMessage(id, idSig)
+    if (signerAddr.toLowerCase() != ISSUER_WALLET.address.toLowerCase()) {
+      res.status(401).json({ message: 'Wrong signature', data: {} })
+      return
+    }
 
     try {
       await certificatesQueue.updateOne({"_id": new ObjectId(id)}, {"$set": {"isAccepted": true}})
@@ -375,7 +387,7 @@ app.post('/api/createMainVC', async (req, res) => {
   res
     .status(200)
     .json({
-      message: 'Profile submitted successfully',
+      message: 'Main NFT VC uploaded to IPFS',
       data: { metadata, ipfsHash },
     })
 })
@@ -383,6 +395,7 @@ app.post('/api/createMainVC', async (req, res) => {
 app.post('/api/createCertificateVC', async (req, res) => {
   const { imageLink, workerAddr, certificateId, receiptDate, challengeSig } =
     req.body
+  console.log(receiptDate)
 
   const isRightSignature = await challengeVerify(challengeSig)
   if (!isRightSignature) {
@@ -422,7 +435,7 @@ app.post('/api/createCertificateVC', async (req, res) => {
   res
     .status(200)
     .json({
-      message: 'Profile submitted successfully',
+      message: 'Certificate NFT VC uploaded to IPFS',
       data: { metadata, ipfsHash },
     })
 })
@@ -460,7 +473,6 @@ app.post('/api/createReviewVC', async (req, res) => {
   const now = (await PROVIDER.getBlock('latest')).timestamp
   const metadata = {
     name: 'Крипто$лоня₽ы Collection Digital Review',
-    image: imageLink,
     description: "Metadata of a company employee's digital review.",
     vc: {
       type: ['VerifiableCredential'],
@@ -491,7 +503,7 @@ app.post('/api/createReviewVC', async (req, res) => {
   res
     .status(200)
     .json({
-      message: 'Profile submitted successfully',
+      message: 'Review NFT VC uploaded to IPFS',
       data: { metadata, ipfsHash },
     })
 })
