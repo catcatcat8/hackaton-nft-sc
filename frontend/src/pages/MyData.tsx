@@ -31,6 +31,8 @@ import {
 } from '../constants'
 import { ethers } from 'ethers'
 import { acceptCertificate, acceptReview } from '../api'
+import { handleCopyToClipboard } from '../utils'
+import { toast } from 'react-toastify'
 
 // Define the structure of the user data
 interface UserData {
@@ -48,19 +50,8 @@ const MyDataPage: React.FC = () => {
   const [sortField, setSortField] = useState<keyof UserData>('name') // Field to sort by
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc') // Sort order (asc or desc)
   const [sortRType, sortFieldReviewType] = useState<number | null | string>(
-    null,
+    null
   )
-
-  const handleCopyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text).then(
-      () => {
-        alert(`${text} copied to clipboard!`)
-      },
-      (err) => {
-        alert(`Failed to copy: ' ${err}`)
-      },
-    )
-  }
 
   const [isQueuesState, setIsQueusState] = useState(true) // Set is queues state
   const [isCertificates, setIsCertificates] = useState(true) // Set is certificates data
@@ -135,7 +126,7 @@ const MyDataPage: React.FC = () => {
     try {
       signature = await signer!.signMessage(sigToSign)
     } catch (error) {
-      alert('SIG ERROR')
+      toast.error('SIG ERROR')
       return
     }
 
@@ -143,7 +134,7 @@ const MyDataPage: React.FC = () => {
     try {
       signatureForDbUpdate = await signer!.signMessage(values._id)
     } catch (error) {
-      alert('SIG ERROR')
+      toast.error('SIG ERROR')
       return
     }
 
@@ -157,12 +148,14 @@ const MyDataPage: React.FC = () => {
           certificateId: values.certificateId,
           receiptDate: values.receiptDate,
           challengeSig: signature,
-        },
+        }
       )
       responseData = response.data
-      alert(`BACKEND SUCCESS: ${IPFS_BASE_LINK + responseData.data.ipfsHash}`)
+      toast.success(
+        `BACKEND SUCCESS: ${IPFS_BASE_LINK + responseData.data.ipfsHash}`
+      )
     } catch (error) {
-      alert('BACKEND ERROR')
+      toast.error('BACKEND ERROR')
       return
     }
 
@@ -171,12 +164,12 @@ const MyDataPage: React.FC = () => {
       try {
         const tx = await NFT_CONTRACT.connect(signer!).mint(
           values.workerAddr,
-          responseData.data.ipfsHash,
+          responseData.data.ipfsHash
         )
         txWaited = await tx.wait()
-        alert(`TX SUCCESS: ${SCANNER_LINK + tx.hash}`)
+        toast.success(`TX SUCCESS: ${SCANNER_LINK + tx.hash}`)
       } catch (error) {
-        alert('WHY REJECT??')
+        toast.error('WHY REJECT??')
       }
     }
 
@@ -185,14 +178,14 @@ const MyDataPage: React.FC = () => {
       try {
         response = await acceptCertificate(values._id, signatureForDbUpdate)
       } catch (error) {
-        alert('BACKEND ERROR')
+        toast.error('BACKEND ERROR')
         return
       }
     }
 
     if (response == 200) {
-      alert(
-        'транза прошла, в дб флаг поменяли, на этом моменте кнопку у этого итема можно убирать',
+      toast.success(
+        'TODO транза прошла, в дб флаг поменяли, на этом моменте кнопку у этого итема можно убирать'
       )
       return
     }
@@ -207,7 +200,7 @@ const MyDataPage: React.FC = () => {
     try {
       signature = await signer!.signMessage(sigToSign)
     } catch (error) {
-      alert('SIG ERROR')
+      toast.error('SIG ERROR')
       return
     }
 
@@ -215,7 +208,7 @@ const MyDataPage: React.FC = () => {
     try {
       signatureForDbUpdate = await signer!.signMessage(values._id)
     } catch (error) {
-      alert('SIG ERROR')
+      toast.error('SIG ERROR')
       return
     }
 
@@ -229,12 +222,14 @@ const MyDataPage: React.FC = () => {
           reviewText: values.reviewText,
           reviewType: values.reviewType,
           challengeSig: signature,
-        },
+        }
       )
       responseData = response.data
-      alert(`BACKEND SUCCESS: ${IPFS_BASE_LINK + responseData.data.ipfsHash}`)
+      toast.success(
+        `BACKEND SUCCESS: ${IPFS_BASE_LINK + responseData.data.ipfsHash}`
+      )
     } catch (error) {
-      alert('BACKEND ERROR')
+      toast.error('BACKEND ERROR')
       return
     }
 
@@ -243,13 +238,13 @@ const MyDataPage: React.FC = () => {
       try {
         const tx = await NFT_CONTRACT.connect(signer!).mint(
           values.reviewTo,
-          responseData.data.ipfsHash,
+          responseData.data.ipfsHash
         )
         txWaited = await tx.wait()
-        alert(`TX SUCCESS: ${SCANNER_LINK + tx.hash}`)
+        toast.success(`TX SUCCESS: ${SCANNER_LINK + tx.hash}`)
       } catch (error) {
         console.log(error)
-        alert('WHY REJECT??')
+        toast.error('WHY REJECT??')
       }
     }
 
@@ -258,14 +253,14 @@ const MyDataPage: React.FC = () => {
       try {
         response = await acceptReview(values._id, signatureForDbUpdate)
       } catch (error) {
-        alert('BACKEND ERROR')
+        toast.error('BACKEND ERROR')
         return
       }
     }
 
     if (response == 200) {
-      alert(
-        'транза прошла, в дб флаг поменяли, на этом моменте кнопку у этого итема можно убирать',
+      toast.success(
+        'транза прошла, в дб флаг поменяли, на этом моменте кнопку у этого итема можно убирать'
       )
       return
     }
@@ -403,7 +398,11 @@ const MyDataPage: React.FC = () => {
                       </ListItemAvatar>
                       {/* User Info */}
                       <ListItemText
-                        primary={`Обладатель ${item.fullName}, id сертификата: ${item.certificateId}, Date: ${dayjs(item.receiptDate)}`}
+                        primary={`Обладатель ${
+                          item.fullName
+                        }, id сертификата: ${item.certificateId}, Date: ${dayjs(
+                          item.receiptDate
+                        )}`}
                       />
                       <Button
                         variant="outlined"

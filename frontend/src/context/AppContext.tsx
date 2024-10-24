@@ -20,6 +20,7 @@ import { redirect } from 'react-router-dom'
 import { eraseCookie, getCookie, setCookie } from '../pages/AuthPage'
 import { getCertificatesQueue, getReviewsQueue } from '../api'
 import { DATA, UserProfile } from '../types'
+import { toast } from 'react-toastify'
 
 // Define types for the context state
 interface AppContextProps {
@@ -212,7 +213,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
         setMyNftData(responseData)
       }
     } catch (error) {
-      alert(`BACKEND ERROR ${error}`)
+      toast.error(`BACKEND ERROR ${error}`)
       return
     }
   }, [isAdmin, account])
@@ -226,7 +227,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
 
     try {
     } catch (error) {
-      alert('BACKEND ERROR')
+      toast.error('BACKEND ERROR')
       return
     }
   }, [])

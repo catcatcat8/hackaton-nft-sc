@@ -17,6 +17,7 @@ import dayjs from 'dayjs'
 
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import { DATA, UserProfile } from '../types'
+import { handleCopyToClipboard } from '../utils'
 
 const userProfile: UserProfile = {
   fullName: 'Loading...',
@@ -29,16 +30,7 @@ const userProfile: UserProfile = {
 const UserProfilePage: React.FC = () => {
   const { myNftData: data, myMainNft, isAdmin } = useAppContext()
 
-  const handleCopyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text).then(
-      () => {
-        alert(`${text} copied to clipboard!`)
-      },
-      (err) => {
-        alert(`Failed to copy: ' ${err}`)
-      },
-    )
-  }
+
 
   return (
     <Box sx={{ maxWidth: '800px', margin: '0 auto', padding: '24px' }}>

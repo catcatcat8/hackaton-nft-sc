@@ -19,6 +19,7 @@ import { IPFS_BASE_LINK, PINATA } from '../constants'
 import axios from 'axios'
 import { useAppContext } from '../context/AppContext'
 import { ethers } from 'ethers'
+import { toast } from 'react-toastify'
 
 enum ReviewType {
   bad = 'bad',
@@ -82,13 +83,13 @@ const AddEntityPage: React.FC = () => {
           reviewTo: formOneData.target,
           reviewText: formOneData.text,
           reviewType: formOneData.type,
-        },
+        }
       )
       if (response.status == 200) {
-        alert(`BACKEND SUCCESS`)
+        toast.success(`BACKEND SUCCESS`)
       }
     } catch (error) {
-      alert('BACKEND ERROR')
+      toast.error('BACKEND ERROR')
       return
     }
   }
@@ -99,7 +100,7 @@ const AddEntityPage: React.FC = () => {
     e.preventDefault()
 
     if (!formTwoData.file) {
-      alert('NO FILE TO UPLOAD')
+      toast.error('NO FILE TO UPLOAD')
       return
     }
 
@@ -107,11 +108,13 @@ const AddEntityPage: React.FC = () => {
     try {
       const upload = await PINATA.upload.file(formTwoData.file)
       fileLink = IPFS_BASE_LINK + upload.IpfsHash
-      alert(
-        `hash загруженного на ipfs сертификата ${IPFS_BASE_LINK + upload.IpfsHash}`,
+      toast.success(
+        `hash загруженного на ipfs сертификата ${
+          IPFS_BASE_LINK + upload.IpfsHash
+        }`
       )
     } catch (error) {
-      alert('IPFS ERROR :(')
+      toast.error('IPFS ERROR :(')
       return
     }
 
@@ -123,13 +126,13 @@ const AddEntityPage: React.FC = () => {
           workerAddr: account,
           certificateId: formTwoData.id,
           receiptDate: formTwoData.date?.unix(),
-        },
+        }
       )
       if (response.status == 200) {
-        alert(`BACKEND SUCCESS`)
+        toast.success(`BACKEND SUCCESS`)
       }
     } catch (error) {
-      alert('BACKEND ERROR')
+      toast.error('BACKEND ERROR')
       return
     }
   }

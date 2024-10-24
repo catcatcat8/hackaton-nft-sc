@@ -16,6 +16,7 @@ import axios from 'axios'
 import { PinataSDK } from 'pinata-web3'
 import manPicture from '../man_picture.jpg'
 import { acceptCertificate } from '../api'
+import { toast } from 'react-toastify'
 
 interface IMainNFTForm {
   walletAddr: string
@@ -82,14 +83,14 @@ const Profile: React.FC = () => {
   }
 
   const handleSubmit = async (values: IMainNFTForm) => {
-    alert('ZXC?')
+    toast.success('Начало операции')
     if (!isAdmin) {
-      alert('NOT ADMIN!')
+      toast.error('NOT ADMIN!')
       return
     }
 
     if (!selectedFile) {
-      alert('NO IMAGE TO UPLOAD')
+      toast.error('NO IMAGE TO UPLOAD')
       return
     }
 
@@ -100,7 +101,7 @@ const Profile: React.FC = () => {
     try {
       signature = await signer!.signMessage(sigToSign)
     } catch (error) {
-      alert('SIG ERROR')
+      toast.error('SIG ERROR')
       return
     }
 
@@ -108,11 +109,11 @@ const Profile: React.FC = () => {
     try {
       const upload = await PINATA.upload.file(selectedFile)
       imageLink = IPFS_BASE_LINK + upload.IpfsHash
-      alert(
-        `hash загруженной на ипфс картинки ${IPFS_BASE_LINK + upload.IpfsHash}`,
+      toast.success(
+        `hash загруженной на ипфс картинки ${IPFS_BASE_LINK + upload.IpfsHash}`
       )
     } catch (error) {
-      alert('IPFS ERROR :(')
+      toast.error('IPFS ERROR :(')
       return
     }
 
@@ -128,12 +129,14 @@ const Profile: React.FC = () => {
           fullName: values.fullName,
           dateOfHire: values.dateOfHire,
           challengeSig: signature,
-        },
+        }
       )
       responseData = response.data
-      alert(`BACKEND SUCCESS: ${IPFS_BASE_LINK + responseData.data.ipfsHash}`)
+      toast.success(
+        `BACKEND SUCCESS: ${IPFS_BASE_LINK + responseData.data.ipfsHash}`
+      )
     } catch (error) {
-      alert('BACKEND ERROR')
+      toast.error('BACKEND ERROR')
       return
     }
 
@@ -141,13 +144,15 @@ const Profile: React.FC = () => {
       try {
         const tx = await NFT_CONTRACT.connect(signer!).mint(
           values.walletAddr,
-          responseData.data.ipfsHash,
+          responseData.data.ipfsHash
         )
         await tx.wait()
-        alert(`TX SUCCESS: ${SCANNER_LINK + tx.hash}`)
+        toast.success(`TX SUCCESS: ${SCANNER_LINK + tx.hash}`)
+
+        window.location.reload()
       } catch (error) {
         console.log(error)
-        alert('WHY REJECT??')
+        toast.error('WHY REJECT??')
       }
     }
   }
