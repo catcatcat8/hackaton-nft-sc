@@ -26,6 +26,7 @@ import dayjs from 'dayjs'
 import axios from 'axios'
 import {
   ALLOWED_CHAIN_ID,
+  REACT_APP_BACKEND_BASE_URL,
   IPFS_BASE_LINK,
   NFT_CONTRACT,
   SCANNER_LINK,
@@ -35,21 +36,10 @@ import { acceptCertificate, acceptReview } from '../api'
 import { handleCopyToClipboard } from '../utils'
 import { toast } from 'react-toastify'
 
-// Define the structure of the user data
-interface UserData {
-  id: number
-  name: string
-  age: number
-  date: string
-  image: string
-}
-
 const MyDataPage: React.FC = () => {
   const { reviewsData, certificatesData, signer } = useAppContext()
   const [data, setData] = useState<any[]>(cloneDeep(certificatesData)) // This state holds the data displayed
   const [searchTerm, setSearchTerm] = useState('') // Filter term
-  const [sortField, setSortField] = useState<keyof UserData>('name') // Field to sort by
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc') // Sort order (asc or desc)
   const [sortRType, sortFieldReviewType] = useState<number | null | string>(
     null
   )
@@ -102,15 +92,6 @@ const MyDataPage: React.FC = () => {
       })
     }
 
-    // Sort: Sort by the selected field and order
-    filteredData.sort((a, b) => {
-      if (sortOrder === 'asc') {
-        return a[sortField] > b[sortField] ? 1 : -1
-      } else {
-        return a[sortField] < b[sortField] ? 1 : -1
-      }
-    })
-
     // Update the displayed data
     setData(filteredData)
   }
@@ -157,7 +138,7 @@ const MyDataPage: React.FC = () => {
     let responseData: any = null
     try {
       const response = await axios.post(
-        'http://localhost:5000/api/createCertificateVC',
+        `${REACT_APP_BACKEND_BASE_URL}/api/createCertificateVC`,
         {
           imageLink: values.imageLink,
           workerAddr: values.workerAddr,
@@ -237,7 +218,7 @@ const MyDataPage: React.FC = () => {
     let responseData: any = null
     try {
       const response = await axios.post(
-        'http://localhost:5000/api/createReviewVC',
+        `${REACT_APP_BACKEND_BASE_URL}/api/createReviewVC`,
         {
           reviewFrom: values.reviewFrom,
           reviewTo: values.reviewTo,

@@ -1,20 +1,24 @@
 import axios from 'axios'
+import { REACT_APP_BACKEND_BASE_URL } from './constants'
 
 export async function acceptReview(id: string, idSig: string): Promise<number> {
-  const response = await axios.post('http://localhost:5000/api/acceptReview', {
-    id: id,
-    idSig: idSig,
-  })
+  const response = await axios.post(
+    `${REACT_APP_BACKEND_BASE_URL}/api/acceptReview`,
+    {
+      id: id,
+      idSig: idSig,
+    }
+  )
   return response.status
 }
 
 export async function acceptCertificate(
   id: string,
-  idSig: string,
+  idSig: string
 ): Promise<number> {
   const response = await axios.post(
-    'http://localhost:5000/api/acceptCertificate',
-    { id: id, idSig: idSig },
+    `${REACT_APP_BACKEND_BASE_URL}/api/acceptCertificate`,
+    { id: id, idSig: idSig }
   )
   return response.status
 }
@@ -38,9 +42,12 @@ interface IReviewsQueue {
 export async function getUserInfo(user: string): Promise<any | null> {
   let response: any = null
   try {
-    response = await axios.get(`http://localhost:5000/api/getUserInfo`, {
-      params: { userAddress: user },
-    })
+    response = await axios.get(
+      `${REACT_APP_BACKEND_BASE_URL}/api/getUserInfo`,
+      {
+        params: { userAddress: user },
+      }
+    )
   } catch (error) {
     return null
   }
@@ -53,7 +60,9 @@ export async function getCertificatesQueue(): Promise<
 > {
   let response: any = null
   try {
-    response = await axios.get('http://localhost:5000/api/getCertificatesQueue')
+    response = await axios.get(
+      `${REACT_APP_BACKEND_BASE_URL}/api/getCertificatesQueue`
+    )
   } catch (error) {
     return null
   }
@@ -61,9 +70,12 @@ export async function getCertificatesQueue(): Promise<
 }
 
 export async function getReviewsQueue(): Promise<IReviewsQueue[] | null> {
+  console.log('KEK', REACT_APP_BACKEND_BASE_URL)
   let response: any = null
   try {
-    response = await axios.get('http://localhost:5000/api/getReviewsQueue')
+    response = await axios.get(
+      `${REACT_APP_BACKEND_BASE_URL}/api/getReviewsQueue`
+    )
   } catch (error) {
     return null
   }

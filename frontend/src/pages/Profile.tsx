@@ -1,11 +1,11 @@
 import React, { useState } from 'react'
 import { TextField, Button, Typography, Box } from '@mui/material'
 import { useAppContext } from '../context/AppContext'
-import * as Yup from 'yup'
 import { ethers } from 'ethers'
-import * as isIPFS from 'is-ipfs'
+
 import {
   ALLOWED_CHAIN_ID,
+  REACT_APP_BACKEND_BASE_URL,
   IPFS_BASE_LINK,
   NFT_CONTRACT,
   PINATA,
@@ -13,9 +13,7 @@ import {
 } from '../constants'
 import { Field, Form, Formik } from 'formik'
 import axios from 'axios'
-import { PinataSDK } from 'pinata-web3'
-import manPicture from '../man_picture.jpg'
-import { acceptCertificate } from '../api'
+
 import { toast } from 'react-toastify'
 
 interface IMainNFTForm {
@@ -28,17 +26,7 @@ interface IMainNFTForm {
 }
 
 const Profile: React.FC = () => {
-  const {
-    account,
-    name,
-    setName,
-    email,
-    setEmail,
-    bio,
-    setBio,
-    isAdmin,
-    signer,
-  } = useAppContext()
+  const { account, isAdmin, signer } = useAppContext()
 
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
 
@@ -57,27 +45,10 @@ const Profile: React.FC = () => {
     dateOfHire: '',
   }
 
-  const validationSchema = Yup.object({
-    walletAddr: Yup.string().required('Worker wallet is required'),
-    ipfsLink: Yup.string().required('Email is required'),
-    fullName: Yup.string().required('Full name is required'),
-    skills: Yup.string().required('Skills are required'),
-    jobTitle: Yup.string().required('Job title is required'),
-    dateOfHire: Yup.string().required('Date of hire'),
-  })
-
   function validateWallet(wallet: string) {
     let error
     if (!ethers.utils.isAddress(wallet)) {
       error = 'Invalid wallet address'
-    }
-    return error
-  }
-
-  function validateIpfs(ipfs: string) {
-    let error
-    if (!isIPFS.cid(ipfs)) {
-      error = 'Invalid IPFS link'
     }
     return error
   }
@@ -120,7 +91,7 @@ const Profile: React.FC = () => {
     let responseData: any = null
     try {
       const response = await axios.post(
-        'http://localhost:5000/api/createMainVC',
+        `${REACT_APP_BACKEND_BASE_URL}/api/createMainVC`,
         {
           imageLink: imageLink,
           workerAddr: values.walletAddr,

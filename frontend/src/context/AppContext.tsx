@@ -5,10 +5,8 @@ import React, {
   ReactNode,
   useCallback,
 } from 'react'
-import detectEthereumProvider from '@metamask/detect-provider'
 import { JsonRpcSigner, Network, Web3Provider } from '@ethersproject/providers'
-import { ALLOWED_CHAIN_ID, NFT_CONTRACT } from '../constants'
-import { BigNumber } from 'ethers'
+import { ALLOWED_CHAIN_ID, REACT_APP_BACKEND_BASE_URL } from '../constants'
 import {
   checkIsAdmin,
   getAllNftsInfo,
@@ -16,8 +14,7 @@ import {
   isNftHolder,
 } from '../contractFuncs'
 import axios from 'axios'
-import { redirect } from 'react-router-dom'
-import { eraseCookie, getCookie, setCookie } from '../pages/AuthPage'
+import { getCookie, setCookie } from '../pages/AuthPage'
 import { getCertificatesQueue, getReviewsQueue } from '../api'
 import { DATA, UserProfile } from '../types'
 import { toast } from 'react-toastify'
@@ -77,7 +74,7 @@ const AppContext = createContext<AppContextProps>({
   setReviewsData: () => {},
   myMainNft: null,
   nftServiceInfo: null,
-  setNftServiceInfo: () => {}
+  setNftServiceInfo: () => {},
 })
 
 interface AppProviderProps {
@@ -100,7 +97,6 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
 
   const [nftServiceInfo, setNftServiceInfo] = useState<any | null>(null)
 
-
   const [certificatesData, setCertificatesData] = useState<any | null>(null)
   const [reviewsData, setReviewsData] = useState<any | null>(null)
 
@@ -119,7 +115,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     const provider = setupProvider()
     const accounts: string[] = await provider.send('eth_requestAccounts', [])
     const network: Network = await provider.getNetwork()
-    if (network.chainId != ALLOWED_CHAIN_ID) {
+    if (network.chainId !== ALLOWED_CHAIN_ID) {
       try {
         await provider.send('wallet_switchEthereumChain', [
           { chainId: ALLOWED_CHAIN_ID },
@@ -150,13 +146,6 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     window.location.href = '/'
   }
 
-  const getAccounts = async () => {
-    const provider = setupProvider()
-    const accounts: string[] = await provider.send('eth_accounts', [])
-    setAccount(accounts[0])
-    return accounts
-  }
-
   const getIsHolder = useCallback(async () => {
     if (account) {
       const isHolder = await isNftHolder(account)
@@ -172,8 +161,8 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
             item &&
             item?.walletAddr &&
             account?.toLowerCase() === item?.walletAddr.toLowerCase() &&
-            item?.type === 'MAIN',
-        ),
+            item?.type === 'MAIN'
+        )
       )
     }
   }, [account, myNftData])
@@ -188,8 +177,8 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
         const preparedData = data.map((item) => item.tokenUri)
 
         const response = await axios.post(
-          'http://localhost:5000/api/getIpfsInfo',
-          { ipfsLink: preparedData },
+          `${REACT_APP_BACKEND_BASE_URL}/api/getIpfsInfo`,
+          { ipfsLink: preparedData }
         )
         responseData = response.data
 
@@ -200,24 +189,23 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
         const preparedData = data?.tokenUris
 
         const response = await axios.post(
-          'http://localhost:5000/api/getIpfsInfo',
-          { ipfsLink: preparedData },
+          `${REACT_APP_BACKEND_BASE_URL}/api/getIpfsInfo`,
+          { ipfsLink: preparedData }
         )
         responseData = response.data
 
         setMyNftData(responseData)
 
-////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////
 
         const serviceData = await getAllNftsInfo()
 
         const preparedServiceData = serviceData.map((item) => item.tokenUri)
 
         const serviceDataresponse = await axios.post(
-          'http://localhost:5000/api/getIpfsInfo',
-          { ipfsLink: preparedServiceData },
+          `${REACT_APP_BACKEND_BASE_URL}/api/getIpfsInfo`,
+          { ipfsLink: preparedServiceData }
         )
-
 
         setNftServiceInfo(serviceDataresponse?.data)
       }
@@ -257,7 +245,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
 
             setNetwork(network)
 
-            if (network.chainId != ALLOWED_CHAIN_ID) {
+            if (network.chainId !== ALLOWED_CHAIN_ID) {
               try {
                 await provider.send('wallet_switchEthereumChain', [
                   { chainId: ALLOWED_CHAIN_ID },
@@ -345,7 +333,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
         setCertificatesData,
         myMainNft,
         nftServiceInfo,
-        setNftServiceInfo
+        setNftServiceInfo,
       }}
     >
       {children}
