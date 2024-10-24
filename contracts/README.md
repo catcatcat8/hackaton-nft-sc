@@ -1,4 +1,4 @@
-# NFT SC
+# NFT SC & Staking
 
 ## Getting started
 
