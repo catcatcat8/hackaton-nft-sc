@@ -15,10 +15,13 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider/LocalizationProvider'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { Dayjs } from 'dayjs'
-import { IPFS_BASE_LINK, PINATA } from '../constants'
+import {
+  REACT_APP_BACKEND_BASE_URL,
+  IPFS_BASE_LINK,
+  PINATA,
+} from '../constants'
 import axios from 'axios'
 import { useAppContext } from '../context/AppContext'
-import { ethers } from 'ethers'
 import { toast } from 'react-toastify'
 import { DATA } from '../types'
 
@@ -61,21 +64,13 @@ const AddEntityPage: React.FC = () => {
     file: null,
   })
 
-  function validateWallet(wallet: string) {
-    let error
-    if (!ethers.utils.isAddress(wallet)) {
-      error = 'Invalid wallet address'
-    }
-    return error
-  }
-
   // Handle form submission
   const handleFormOneSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
     try {
       const response = await axios.post(
-        'http://localhost:5000/api/insertReview',
+        `${REACT_APP_BACKEND_BASE_URL}/api/insertReview`,
         {
           reviewFrom: account,
           reviewTo: formOneData.target,
@@ -125,7 +120,7 @@ const AddEntityPage: React.FC = () => {
 
     try {
       const response = await axios.post(
-        'http://localhost:5000/api/insertCertificate',
+        `${REACT_APP_BACKEND_BASE_URL}/api/insertCertificate`,
         {
           imageLink: fileLink,
           workerAddr: account,
