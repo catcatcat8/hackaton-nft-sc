@@ -1,9 +1,9 @@
-import React from 'react';
-import { Typography } from '@mui/material';
-import { useAppContext } from '../context/AppContext';
+import React from 'react'
+import { Typography } from '@mui/material'
+import { useAppContext } from '../context/AppContext'
 
 const Home: React.FC = () => {
-  const { account } = useAppContext();
+  const { account } = useAppContext()
 
   return (
     <div>
@@ -13,10 +13,12 @@ const Home: React.FC = () => {
       {account ? (
         <Typography variant="body1">Connected Wallet: {account}</Typography>
       ) : (
-        <Typography variant="body1">Please connect your MetaMask wallet.</Typography>
+        <Typography variant="body1">
+          Please connect your MetaMask wallet.
+        </Typography>
       )}
     </div>
-  );
-};
+  )
+}
 
-export default Home;
+export default Home

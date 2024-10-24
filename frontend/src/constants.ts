@@ -4,7 +4,7 @@ import { PinataSDK } from 'pinata-web3'
 
 export const DEFAULT_RPC = 'https://bsc-testnet.public.blastapi.io'
 export const DEFAULT_PROVIDER = new ethers.providers.JsonRpcProvider(
-  DEFAULT_RPC
+  DEFAULT_RPC,
 )
 
 export const ALLOWED_CHAIN_ID = 97

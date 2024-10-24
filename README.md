@@ -10,7 +10,6 @@ Contracts are deployed to the BNB Chain testnet network.
 - [frontend-readme](./frontend/README.md)
 - [backend-readme](./backend/README.md)
 
-
 # Как поднять проект (live-демо)
 
 1. Для начала нужно подготовить .env файлы

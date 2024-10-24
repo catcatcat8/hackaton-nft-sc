@@ -1,16 +1,17 @@
-import React from 'react';
-import { Box, Typography, Button, Paper, Avatar } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import React from 'react'
+import { Box, Typography, Button, Paper, Avatar } from '@mui/material'
+import { useNavigate } from 'react-router-dom'
 
 // Sample warning image (you can replace this with your own image URL)
-const warningImage = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSJZaVpfhv3kgZA46GoqfVNIFhR6pXIdX4_Rg&s';
+const warningImage =
+  'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSJZaVpfhv3kgZA46GoqfVNIFhR6pXIdX4_Rg&s'
 
 const SetupPage: React.FC = () => {
-  const navigate = useNavigate();
+  const navigate = useNavigate()
 
   const handleGoBack = () => {
-    window.location.href ='https://metamask.io/download/'
-  };
+    window.location.href = 'https://metamask.io/download/'
+  }
 
   return (
     <Box
@@ -28,16 +29,20 @@ const SetupPage: React.FC = () => {
         <Avatar
           src={warningImage}
           alt="Установите метамаск"
-          sx={{ width: 150, height: 150, marginBottom: '16px', margin: '0 auto' }}
+          sx={{
+            width: 150,
+            height: 150,
+            marginBottom: '16px',
+            margin: '0 auto',
+          }}
         />
-        
+
         {/* Error Text */}
         <Typography variant="h3" color="error" gutterBottom>
           Нет приложения MetaMask
         </Typography>
         <Typography variant="h6" color="textSecondary" gutterBottom>
-        Для доступа к приложению необходимо установить MetaMask
-
+          Для доступа к приложению необходимо установить MetaMask
         </Typography>
 
         {/* Go Back Button */}
@@ -51,7 +56,7 @@ const SetupPage: React.FC = () => {
         </Button>
       </Paper>
     </Box>
-  );
-};
+  )
+}
 
-export default SetupPage;
+export default SetupPage

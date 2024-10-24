@@ -1,42 +1,49 @@
-import React from 'react';
-import { TextField, Button, Typography, Box } from '@mui/material';
-import { useAppContext } from '../context/AppContext';
+import React from 'react'
+import { TextField, Button, Typography, Box } from '@mui/material'
+import { useAppContext } from '../context/AppContext'
 import * as Yup from 'yup'
-import { ethers } from 'ethers';
+import { ethers } from 'ethers'
 import * as isIPFS from 'is-ipfs'
-import { NFT_CONTRACT, SCANNER_LINK } from '../constants';
-import { Field, Form, Formik } from 'formik';
-
+import { NFT_CONTRACT, SCANNER_LINK } from '../constants'
+import { Field, Form, Formik } from 'formik'
 
 const Profile: React.FC = () => {
-  const { account, name, setName, email, setEmail, bio, setBio, isAdmin, signer } = useAppContext();
+  const {
+    account,
+    name,
+    setName,
+    email,
+    setEmail,
+    bio,
+    setBio,
+    isAdmin,
+    signer,
+  } = useAppContext()
 
   const initialValues = {
     walletAddr: '',
     ipfsLink: '',
   }
 
-
-
   const validationSchema = Yup.object({
     walletAddr: Yup.string().required('Worker wallet is required'),
     ipfsLink: Yup.string().required('Email is required'),
   })
-  
+
   function validateWallet(wallet: string) {
-    let error;
+    let error
     if (!ethers.utils.isAddress(wallet)) {
-      error = 'Invalid wallet address';
+      error = 'Invalid wallet address'
     }
-    return error;
+    return error
   }
-  
+
   function validateIpfs(ipfs: string) {
-    let error;
+    let error
     if (!isIPFS.cid(ipfs)) {
-      error = 'Invalid IPFS link';
+      error = 'Invalid IPFS link'
     }
-    return error;
+    return error
   }
 
   const handleSubmit = async (values: any) => {
@@ -54,10 +61,9 @@ const Profile: React.FC = () => {
     //   return
     // }
     try {
-
       const tx = await NFT_CONTRACT.connect(signer!).mint(
         values.walletAddr,
-        values.ipfsLink
+        values.ipfsLink,
       )
 
       await tx.wait()
@@ -68,7 +74,6 @@ const Profile: React.FC = () => {
     console.log('Form Submitted:', values)
     // Further logic (e.g., sending data to blockchain or backend)
   }
-
 
   return (
     <Box sx={{ maxWidth: '500px', margin: '0 auto' }}>
@@ -90,7 +95,4 @@ const Profile: React.FC = () => {
   )
 }
 
-
-  
-
-export default Profile;
+export default Profile

@@ -1,0 +1,9 @@
+node_modules
+# Ignore artifacts:
+build
+coverage
+contracts
+frontend/public
+frontend/node_modules
+backend/node_modules
+frontend/src/typechain

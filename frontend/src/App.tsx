@@ -1,18 +1,18 @@
-import React from 'react';
-import { AppBar, Toolbar, Typography, Container, Button } from '@mui/material';
-import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
-import { useAppContext } from './context/AppContext';
-import Home from './pages/Home';
-import Profile from './pages/Profile';
-import About from './pages/About';
-import AddEntityPage from './pages/AddEntityPage';
-import MyDataPage from './pages/MyData';
-import UserProfilePage from './pages/UserProfilePage';
-import SetupPage from './pages/SetupPage';
-import AuthPage from './pages/AuthPage';
+import React from 'react'
+import { AppBar, Toolbar, Typography, Container, Button } from '@mui/material'
+import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom'
+import { useAppContext } from './context/AppContext'
+import Home from './pages/Home'
+import Profile from './pages/Profile'
+import About from './pages/About'
+import AddEntityPage from './pages/AddEntityPage'
+import MyDataPage from './pages/MyData'
+import UserProfilePage from './pages/UserProfilePage'
+import SetupPage from './pages/SetupPage'
+import AuthPage from './pages/AuthPage'
 
 const App: React.FC = () => {
-  const { account, connectWallet, isAdmin, isHolder } = useAppContext();
+  const { account, connectWallet, isAdmin, isHolder } = useAppContext()
 
   return (
     <Router>
@@ -23,24 +23,54 @@ const App: React.FC = () => {
               Diamond Enterprise System
             </Typography>
             <nav>
-            <Link to="/" style={{ color: '#fff', textDecoration: 'none', marginRight: '10px' }}>
+              <Link
+                to="/"
+                style={{
+                  color: '#fff',
+                  textDecoration: 'none',
+                  marginRight: '10px',
+                }}
+              >
                 Главная
               </Link>
-              {isHolder && (  <Link to="/add-entity" style={{ color: '#fff', textDecoration: 'none', marginRight: '10px' }}>
-                Добавить информацию
-              </Link>)}
-          
-          
-              {isAdmin && (  <Link to="/profile" style={{ color: '#fff', textDecoration: 'none', marginRight: '10px' }}>
-                Добавить сотрудника
-              </Link>
-            )}
-           
-              {isAdmin && (  <Link to="/my-data" style={{ color: '#fff', textDecoration: 'none', marginRight: '10px' }}>
-                Мои данные
-              </Link>)}
-            
+              {isHolder && (
+                <Link
+                  to="/add-entity"
+                  style={{
+                    color: '#fff',
+                    textDecoration: 'none',
+                    marginRight: '10px',
+                  }}
+                >
+                  Добавить информацию
+                </Link>
+              )}
 
+              {isAdmin && (
+                <Link
+                  to="/profile"
+                  style={{
+                    color: '#fff',
+                    textDecoration: 'none',
+                    marginRight: '10px',
+                  }}
+                >
+                  Добавить сотрудника
+                </Link>
+              )}
+
+              {isAdmin && (
+                <Link
+                  to="/my-data"
+                  style={{
+                    color: '#fff',
+                    textDecoration: 'none',
+                    marginRight: '10px',
+                  }}
+                >
+                  Мои данные
+                </Link>
+              )}
             </nav>
             {account ? (
               <Typography variant="body1">{`Connected: ${account.substring(0, 6)}...${account.substring(account.length - 4)}`}</Typography>
@@ -56,18 +86,20 @@ const App: React.FC = () => {
             <Route path="/" element={<UserProfilePage />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/about" element={<About />} />
-            <Route path="/add-entity" element={<AddEntityPage />} /> {/* New Route */}
+            <Route path="/add-entity" element={<AddEntityPage />} />{' '}
+            {/* New Route */}
             <Route path="/my-data" element={<MyDataPage />} /> {/* New Route */}
-            <Route path="/setup-extension" element={<SetupPage />} /> {/* New Route */}
-            <Route path="/setup-extension" element={<SetupPage />} /> {/* New Route */}
+            <Route path="/setup-extension" element={<SetupPage />} />{' '}
+            {/* New Route */}
+            <Route path="/setup-extension" element={<SetupPage />} />{' '}
+            {/* New Route */}
             <Route path="/auth" element={<AuthPage />} />
             <Route path="/home" element={<Home />} />
-            
           </Routes>
         </Container>
       </div>
     </Router>
-  );
-};
+  )
+}
 
-export default App;
+export default App
