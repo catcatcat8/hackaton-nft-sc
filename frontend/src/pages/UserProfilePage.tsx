@@ -16,49 +16,18 @@ import { useAppContext } from '../context/AppContext'
 import dayjs from 'dayjs'
 
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
-
-export interface DATA {
-  bigId: string
-  dateOfHire?: string
-  fullName?: string
-  image?: string
-  jobTitle?: string
-  skills?: string
-  type?: string
-
-  reivewToFullName?: string
-  reivewToImage?: string
-  reviewFrom?: string
-  reviewFromFullName?: string
-  reviewFromImage?: string
-  reviewTo?: string
-  reviewText?: string
-  reviewType?: number
-
-  certId?: string
-  imageCert?: string
-  imageUser?: string
-  walletAddr?: string
-}
-
-interface UserProfile {
-  fullName: string
-  dateOfBirth: string
-  avatar: string
-  jobTitle: string
-  skills: string[]
-}
+import { DATA, UserProfile } from '../types'
 
 const userProfile: UserProfile = {
-  fullName: 'Mock',
-  dateOfBirth: '1990-06-15',
+  fullName: 'Loading...',
+  dateOfBirth: 'Loading...',
   avatar: 'https://via.placeholder.com/150',
-  jobTitle: 'Full Stack Developer',
+  jobTitle: 'Loading...',
   skills: ['JavaScript', 'React', 'Node.js', 'TypeScript', 'GraphQL'],
 }
 
 const UserProfilePage: React.FC = () => {
-  const { myNftData: data } = useAppContext()
+  const { myNftData: data, myMainNft, isAdmin } = useAppContext()
 
   const handleCopyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text).then(
@@ -73,55 +42,84 @@ const UserProfilePage: React.FC = () => {
 
   return (
     <Box sx={{ maxWidth: '800px', margin: '0 auto', padding: '24px' }}>
-      {/* Avatar and Name */}
-      <Paper elevation={3} sx={{ padding: '24px', textAlign: 'center' }}>
-        <Avatar
-          src={userProfile.avatar}
-          alt={userProfile.fullName}
-          sx={{ width: 150, height: 150, margin: '0 auto' }}
-        />
-        <Typography variant="h4" gutterBottom sx={{ marginTop: '16px' }}>
-          {userProfile.fullName}
-        </Typography>
-        <Typography variant="h6" color="textSecondary">
-          {userProfile.jobTitle}
-        </Typography>
-      </Paper>
-
-      {/* Additional Info: Date of Birth and Skills */}
-      <Paper elevation={3} sx={{ padding: '24px', marginTop: '24px' }}>
-        <Grid container spacing={2}>
-          {/* Date of Birth */}
-          <Grid item xs={12} md={6}>
-            <Typography variant="subtitle1" gutterBottom>
-              Дата устройства на работу:
+      {isAdmin ? (
+        <Paper elevation={3} sx={{ padding: '24px', textAlign: 'center' }}>
+          <Avatar
+            src={
+              'https://assets.techrepublic.com/uploads/2017/06/incognitohero.jpg'
+            }
+            alt={'ADMIN'}
+            sx={{ width: 150, height: 150, margin: '0 auto' }}
+          />
+          <Typography variant="h4" gutterBottom sx={{ marginTop: '16px' }}>
+            {'Администратор'}
+          </Typography>
+          <Typography variant="h6" color="textSecondary">
+            {'Администратор'}
+          </Typography>
+        </Paper>
+      ) : (
+        <>
+          <Paper elevation={3} sx={{ padding: '24px', textAlign: 'center' }}>
+            <Avatar
+              src={myMainNft?.image ?? userProfile.avatar}
+              alt={myMainNft?.fullName ?? userProfile.fullName}
+              sx={{ width: 150, height: 150, margin: '0 auto' }}
+            />
+            <Typography variant="h4" gutterBottom sx={{ marginTop: '16px' }}>
+              {myMainNft?.fullName ?? userProfile.fullName}
             </Typography>
-            <Typography variant="body1">{userProfile.dateOfBirth}</Typography>
-          </Grid>
-
-          {/* Job Title */}
-          <Grid item xs={12} md={6}>
-            <Typography variant="subtitle1" gutterBottom>
-              Должность:
+            <Typography variant="h6" color="textSecondary">
+              {myMainNft?.jobTitle ?? userProfile.jobTitle}
             </Typography>
-            <Typography variant="body1">{userProfile.jobTitle}</Typography>
-          </Grid>
+          </Paper>
 
-          {/* Skills */}
-          <Grid item xs={12}>
-            <Typography variant="subtitle1" gutterBottom>
-              Навыки
-            </Typography>
-            <List>
-              {userProfile.skills.map((skill, index) => (
-                <ListItem key={index} sx={{ display: 'inline' }}>
-                  <Chip label={skill} sx={{ margin: '4px' }} />
-                </ListItem>
-              ))}
-            </List>
-          </Grid>
-        </Grid>
-      </Paper>
+          {/* Additional Info: Date of Birth and Skills */}
+          <Paper elevation={3} sx={{ padding: '24px', marginTop: '24px' }}>
+            <Grid container spacing={2}>
+              {/* Date of Birth */}
+              <Grid item xs={12} md={6}>
+                <Typography variant="subtitle1" gutterBottom>
+                  Дата устройства на работу:
+                </Typography>
+                <Typography variant="body1">
+                  {myMainNft?.dateOfHire ?? userProfile.dateOfBirth}
+                </Typography>
+              </Grid>
+
+              {/* Job Title */}
+              <Grid item xs={12} md={6}>
+                <Typography variant="subtitle1" gutterBottom>
+                  Должность:
+                </Typography>
+                <Typography variant="body1">
+                  {myMainNft?.jobTitle ?? userProfile.jobTitle}
+                </Typography>
+              </Grid>
+
+              {/* Skills */}
+              <Grid item xs={12}>
+                <Typography variant="subtitle1" gutterBottom>
+                  Навыки
+                </Typography>
+                <List>
+                  {myMainNft
+                    ? myMainNft?.jobTitle.split(' ').map((skill, index) => (
+                        <ListItem key={index} sx={{ display: 'inline' }}>
+                          <Chip label={skill} sx={{ margin: '4px' }} />
+                        </ListItem>
+                      ))
+                    : userProfile.skills.map((skill, index) => (
+                        <ListItem key={index} sx={{ display: 'inline' }}>
+                          <Chip label={skill} sx={{ margin: '4px' }} />
+                        </ListItem>
+                      ))}
+                </List>
+              </Grid>
+            </Grid>
+          </Paper>
+        </>
+      )}
 
       <Box sx={{ marginTop: '40px', textAlign: 'left' }}>
         <Typography variant="h5" gutterBottom>

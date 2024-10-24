@@ -9,12 +9,17 @@ import detectEthereumProvider from '@metamask/detect-provider'
 import { JsonRpcSigner, Network, Web3Provider } from '@ethersproject/providers'
 import { ALLOWED_CHAIN_ID, NFT_CONTRACT } from '../constants'
 import { BigNumber } from 'ethers'
-import { checkIsAdmin, getAllNftsInfo, isNftHolder } from '../contractFuncs'
+import {
+  checkIsAdmin,
+  getAllNftsInfo,
+  getUserNftUris,
+  isNftHolder,
+} from '../contractFuncs'
 import axios from 'axios'
 import { redirect } from 'react-router-dom'
 import { eraseCookie, getCookie, setCookie } from '../pages/AuthPage'
 import { getCertificatesQueue, getReviewsQueue } from '../api'
-import { DATA } from '../pages/UserProfilePage'
+import { DATA, UserProfile } from '../types'
 
 // Define types for the context state
 interface AppContextProps {
@@ -40,6 +45,7 @@ interface AppContextProps {
   setCertificatesData: (nftData: any) => void
   reviewsData: any
   setReviewsData: (nftData: any) => void
+  myMainNft?: null | UserProfile
 }
 
 // Create the context with default values
@@ -66,6 +72,7 @@ const AppContext = createContext<AppContextProps>({
   setCertificatesData: () => {},
   reviewsData: null,
   setReviewsData: () => {},
+  myMainNft: null,
 })
 
 interface AppProviderProps {
@@ -151,6 +158,18 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
 
   useEffect(() => {
     if (account && myNftData) {
+      console.log('MY MAIN NFT', myNftData)
+
+      console.log(
+        'DEBUG',
+        (myNftData.data?.responseFinalle as DATA[]).find(
+          (item) =>
+            item &&
+            item?.walletAddr &&
+            account?.toLowerCase() === item?.walletAddr.toLowerCase() &&
+            item?.type === 'MAIN',
+        ),
+      )
       setMyMainNft(
         (myNftData.data?.responseFinalle as DATA[]).find(
           (item) =>
@@ -164,25 +183,39 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   }, [account, myNftData])
 
   const getAllNftsInfoMain = useCallback(async () => {
-    const data = await getAllNftsInfo()
-
     let responseData: any = null
 
     try {
-      const preparedData = data.map((item) => item.tokenUri)
+      if (isAdmin) {
+        const data = await getAllNftsInfo()
 
-      const response = await axios.post(
-        'http://localhost:5000/api/getIpfsInfo',
-        { ipfsLink: preparedData },
-      )
-      responseData = response.data
+        const preparedData = data.map((item) => item.tokenUri)
 
-      setMyNftData(responseData)
+        const response = await axios.post(
+          'http://localhost:5000/api/getIpfsInfo',
+          { ipfsLink: preparedData },
+        )
+        responseData = response.data
+
+        setMyNftData(responseData)
+      } else if (account) {
+        const data = await getUserNftUris(account)
+
+        const preparedData = data?.tokenUris
+
+        const response = await axios.post(
+          'http://localhost:5000/api/getIpfsInfo',
+          { ipfsLink: preparedData },
+        )
+        responseData = response.data
+
+        setMyNftData(responseData)
+      }
     } catch (error) {
       alert(`BACKEND ERROR ${error}`)
       return
     }
-  }, [])
+  }, [isAdmin, account])
 
   const getQueuesData = useCallback(async () => {
     const dataCertificates = await getCertificatesQueue()
@@ -258,7 +291,6 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
         // window.location.href = '/auth'
       }
 
-      getAllNftsInfoMain()
       getQueuesData()
     } else {
       if (!window.location.href.includes('setup-extension')) {
@@ -266,6 +298,10 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       }
     }
   }, [])
+
+  useEffect(() => {
+    getAllNftsInfoMain()
+  }, [isAdmin])
 
   useEffect(() => {
     getIsHolder()
@@ -297,6 +333,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
         setReviewsData,
         certificatesData,
         setCertificatesData,
+        myMainNft,
       }}
     >
       {children}
