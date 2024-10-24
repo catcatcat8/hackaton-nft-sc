@@ -12,8 +12,6 @@ import * as dotenv from 'dotenv'
 
 dotenv.config()
 
-const DEPLOYER_ADDR = '0x09A4483934C321e7a1a89c00A2cF2ef882CC6256'
-
 const config: HardhatUserConfig = {
   solidity: {
     version: '0.8.18',
@@ -22,12 +20,6 @@ const config: HardhatUserConfig = {
         enabled: true,
         runs: 200,
       },
-    },
-  },
-  namedAccounts: {
-    deployer: {
-      default: 0,
-      bsc_testnet: DEPLOYER_ADDR,
     },
   },
   networks: {

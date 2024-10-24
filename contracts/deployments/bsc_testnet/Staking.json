@@ -1,0 +1,304 @@
+{
+  "address": "0xC054582cf5441c10731D113F31AF1AE6d6f36884",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "stakingNft_",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "rewardToken_",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "nftId",
+          "type": "uint256"
+        }
+      ],
+      "name": "Staked",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "nftId",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "reward",
+          "type": "uint256"
+        }
+      ],
+      "name": "Unstaked",
+      "type": "event"
+    },
+    {
+      "inputs": [],
+      "name": "REWARD_RATE_PER_SEC",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "rewardToken",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "nftId_",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "holder_",
+          "type": "address"
+        }
+      ],
+      "name": "stake",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "nftId",
+          "type": "uint256"
+        }
+      ],
+      "name": "stakesInfo",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "earned",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "startTimestamp",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "unstakedAt",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "stakingNft",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "nftId_",
+          "type": "uint256"
+        }
+      ],
+      "name": "unstake",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0x3742151895d1188f7e1465f45ae9e5004b7cd1500dd76d21646c07befe738709",
+  "receipt": {
+    "to": null,
+    "from": "0x09A4483934C321e7a1a89c00A2cF2ef882CC6256",
+    "contractAddress": "0xC054582cf5441c10731D113F31AF1AE6d6f36884",
+    "transactionIndex": 3,
+    "gasUsed": "332396",
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0x3fdc2e97e5e952197848349b28818f7bbf6dcab084b21a710935c6b632f26447",
+    "transactionHash": "0x3742151895d1188f7e1465f45ae9e5004b7cd1500dd76d21646c07befe738709",
+    "logs": [],
+    "blockNumber": 45029927,
+    "cumulativeGasUsed": "445720",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [
+    "0x6ec6e3Ec075267c442aD6A8922B9128aF4C67d5F",
+    "0xD746F72CD66eD2Ee9c7F2e87609771a3373EA992"
+  ],
+  "numDeployments": 1,
+  "solcInputHash": "0e5bf9144806c8110a676cab00a69ddf",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.18+commit.87f61d96\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"stakingNft_\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"rewardToken_\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"user\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"nftId\",\"type\":\"uint256\"}],\"name\":\"Staked\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"user\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"nftId\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"reward\",\"type\":\"uint256\"}],\"name\":\"Unstaked\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"REWARD_RATE_PER_SEC\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"rewardToken\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"nftId_\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"holder_\",\"type\":\"address\"}],\"name\":\"stake\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"nftId\",\"type\":\"uint256\"}],\"name\":\"stakesInfo\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"user\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"earned\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"startTimestamp\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"unstakedAt\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"stakingNft\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"nftId_\",\"type\":\"uint256\"}],\"name\":\"unstake\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"author\":\"\\u041a\\u0440\\u0438\\u043f\\u0442\\u043e$\\u043b\\u043e\\u043d\\u044f\\u20bd\\u044b team\",\"kind\":\"dev\",\"methods\":{\"constructor\":{\"params\":{\"rewardToken_\":\"Reward token contract address\",\"stakingNft_\":\"NFT contract address\"}},\"stake(uint256,address)\":{\"details\":\"NOT transferring NFT directly to the staking. Ownership of the NFT remains with the employee. Double-stake is impossible due to mint NFT logic.\",\"params\":{\"holder_\":\"Holder address\",\"nftId_\":\"NFT token ID\"}},\"unstake(uint256)\":{\"details\":\"Double-unstake is not possible due to burn NFT logic\",\"params\":{\"nftId_\":\"NFT token ID\"}}},\"title\":\"NFT Staking\",\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{\"stake(uint256,address)\":{\"notice\":\"Stakes NFT on the Staking contract\"},\"unstake(uint256)\":{\"notice\":\"Unstakes NFT and mints the reward to user\"}},\"notice\":\"NFT staking for company employees\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/Staking.sol\":\"Staking\"},\"evmVersion\":\"paris\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"contracts/Staking.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity 0.8.18;\\n\\ninterface IRewardToken {\\n    function mint(address to_, uint256 amount_) external;\\n}\\n\\n/**\\n * @title NFT Staking\\n * @author \\u041a\\u0440\\u0438\\u043f\\u0442\\u043e$\\u043b\\u043e\\u043d\\u044f\\u20bd\\u044b team\\n * @notice NFT staking for company employees\\n */\\ncontract Staking {\\n    struct Stake {\\n        address user;\\n        uint256 earned;\\n        uint256 startTimestamp;\\n        uint256 unstakedAt;\\n    }\\n\\n    // Approximately 1 token per second\\n    uint256 public constant REWARD_RATE_PER_SEC = 11574074074074;\\n\\n    address public immutable stakingNft;\\n    address public immutable rewardToken;\\n\\n    mapping(uint256 nftId => Stake stakeInfo) public stakesInfo;\\n\\n    modifier onlyNftContract() {\\n        require(msg.sender == stakingNft, 'Sender is not NFT contract');\\n        _;\\n    }\\n\\n    event Staked(address indexed user, uint256 indexed nftId);\\n    event Unstaked(address indexed user, uint256 indexed nftId, uint256 reward);\\n\\n    /**\\n     * @param stakingNft_ NFT contract address\\n     * @param rewardToken_ Reward token contract address\\n     */\\n    constructor(address stakingNft_, address rewardToken_) {\\n        require(stakingNft_ != address(0), 'stakingNft_: address(0)');\\n        require(rewardToken_ != address(0), 'rewardToken_: address(0)');\\n\\n        stakingNft = stakingNft_;\\n        rewardToken = rewardToken_;\\n    }\\n\\n    /**\\n     * @notice Stakes NFT on the Staking contract\\n     * @dev NOT transferring NFT directly to the staking.\\n     * Ownership of the NFT remains with the employee.\\n     * Double-stake is impossible due to mint NFT logic.\\n     * @param nftId_ NFT token ID\\n     * @param holder_ Holder address\\n     */\\n    function stake(uint256 nftId_, address holder_) external onlyNftContract {\\n        stakesInfo[nftId_] = Stake({\\n            user: holder_,\\n            earned: 0,\\n            startTimestamp: block.timestamp,\\n            unstakedAt: 0\\n        });\\n        emit Staked(holder_, nftId_);\\n    }\\n\\n    /**\\n     * @notice Unstakes NFT and mints the reward to user\\n     * @dev Double-unstake is not possible due to burn NFT logic\\n     * @param nftId_ NFT token ID\\n     */\\n    function unstake(uint256 nftId_) external onlyNftContract {\\n        Stake storage stake_ = stakesInfo[nftId_];\\n        address user = stake_.user;\\n\\n        uint256 stakeDuration = block.timestamp - stake_.startTimestamp;\\n        uint256 reward = stakeDuration * REWARD_RATE_PER_SEC; // overflow is not possible\\n\\n        stake_.earned = reward;\\n        stake_.unstakedAt = block.timestamp;\\n\\n        IRewardToken(rewardToken).mint(user, reward); // re-entrancy is not possible\\n        emit Unstaked(user, nftId_, reward);\\n    }\\n}\\n\",\"keccak256\":\"0xc3e9862742ce61385ac6350f1c3f54200ca80dfc7e80bd9b6dfc32b82f5442f2\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x60c060405234801561001057600080fd5b5060405161067638038061067683398101604081905261002f91610113565b6001600160a01b03821661008a5760405162461bcd60e51b815260206004820152601760248201527f7374616b696e674e66745f3a206164647265737328302900000000000000000060448201526064015b60405180910390fd5b6001600160a01b0381166100e05760405162461bcd60e51b815260206004820152601860248201527f726577617264546f6b656e5f3a206164647265737328302900000000000000006044820152606401610081565b6001600160a01b039182166080521660a052610146565b80516001600160a01b038116811461010e57600080fd5b919050565b6000806040838503121561012657600080fd5b61012f836100f7565b915061013d602084016100f7565b90509250929050565b60805160a0516104f761017f6000396000818161015c015261027201526000818160a101528181610189015261032601526104f76000f3fe608060405234801561001057600080fd5b50600436106100625760003560e01c806315212977146100675780632e17de78146100875780636982d8151461009c5780637acb7757146100db57806391981aa2146100ee578063f7c618c114610157575b600080fd5b610074650a86cc92e3da81565b6040519081526020015b60405180910390f35b61009a610095366004610426565b61017e565b005b6100c37f000000000000000000000000000000000000000000000000000000000000000081565b6040516001600160a01b03909116815260200161007e565b61009a6100e936600461043f565b61031b565b61012d6100fc366004610426565b60006020819052908152604090208054600182015460028301546003909301546001600160a01b0390921692909184565b604080516001600160a01b039095168552602085019390935291830152606082015260800161007e565b6100c37f000000000000000000000000000000000000000000000000000000000000000081565b336001600160a01b037f000000000000000000000000000000000000000000000000000000000000000016146101fb5760405162461bcd60e51b815260206004820152601a60248201527f53656e646572206973206e6f74204e465420636f6e747261637400000000000060448201526064015b60405180910390fd5b60008181526020819052604081208054600282015491926001600160a01b03909116916102289042610491565b9050600061023c650a86cc92e3da836104aa565b600185018190554260038601556040516340c10f1960e01b81526001600160a01b038581166004830152602482018390529192507f0000000000000000000000000000000000000000000000000000000000000000909116906340c10f1990604401600060405180830381600087803b1580156102b857600080fd5b505af11580156102cc573d6000803e3d6000fd5b5050505084836001600160a01b03167f7fc4727e062e336010f2c282598ef5f14facb3de68cf8195c2f23e1454b2b74e8360405161030c91815260200190565b60405180910390a35050505050565b336001600160a01b037f000000000000000000000000000000000000000000000000000000000000000016146103935760405162461bcd60e51b815260206004820152601a60248201527f53656e646572206973206e6f74204e465420636f6e747261637400000000000060448201526064016101f2565b604080516080810182526001600160a01b038381168083526000602080850182815242868801908152606087018481528a855292849052878420965187546001600160a01b0319169616959095178655516001860155925160028501559151600390930192909255915184927f9e71bc8eea02a63969f509818f2dafb9254532904319f9dbda79b67bd34a5f3d91a35050565b60006020828403121561043857600080fd5b5035919050565b6000806040838503121561045257600080fd5b8235915060208301356001600160a01b038116811461047057600080fd5b809150509250929050565b634e487b7160e01b600052601160045260246000fd5b818103818111156104a4576104a461047b565b92915050565b80820281158282048414176104a4576104a461047b56fea2646970667358221220042c216fd6ae9b2497ca56ef4cafc155c723b17eef221bab3ce2ed503ee5434164736f6c63430008120033",
+  "deployedBytecode": "0x608060405234801561001057600080fd5b50600436106100625760003560e01c806315212977146100675780632e17de78146100875780636982d8151461009c5780637acb7757146100db57806391981aa2146100ee578063f7c618c114610157575b600080fd5b610074650a86cc92e3da81565b6040519081526020015b60405180910390f35b61009a610095366004610426565b61017e565b005b6100c37f000000000000000000000000000000000000000000000000000000000000000081565b6040516001600160a01b03909116815260200161007e565b61009a6100e936600461043f565b61031b565b61012d6100fc366004610426565b60006020819052908152604090208054600182015460028301546003909301546001600160a01b0390921692909184565b604080516001600160a01b039095168552602085019390935291830152606082015260800161007e565b6100c37f000000000000000000000000000000000000000000000000000000000000000081565b336001600160a01b037f000000000000000000000000000000000000000000000000000000000000000016146101fb5760405162461bcd60e51b815260206004820152601a60248201527f53656e646572206973206e6f74204e465420636f6e747261637400000000000060448201526064015b60405180910390fd5b60008181526020819052604081208054600282015491926001600160a01b03909116916102289042610491565b9050600061023c650a86cc92e3da836104aa565b600185018190554260038601556040516340c10f1960e01b81526001600160a01b038581166004830152602482018390529192507f0000000000000000000000000000000000000000000000000000000000000000909116906340c10f1990604401600060405180830381600087803b1580156102b857600080fd5b505af11580156102cc573d6000803e3d6000fd5b5050505084836001600160a01b03167f7fc4727e062e336010f2c282598ef5f14facb3de68cf8195c2f23e1454b2b74e8360405161030c91815260200190565b60405180910390a35050505050565b336001600160a01b037f000000000000000000000000000000000000000000000000000000000000000016146103935760405162461bcd60e51b815260206004820152601a60248201527f53656e646572206973206e6f74204e465420636f6e747261637400000000000060448201526064016101f2565b604080516080810182526001600160a01b038381168083526000602080850182815242868801908152606087018481528a855292849052878420965187546001600160a01b0319169616959095178655516001860155925160028501559151600390930192909255915184927f9e71bc8eea02a63969f509818f2dafb9254532904319f9dbda79b67bd34a5f3d91a35050565b60006020828403121561043857600080fd5b5035919050565b6000806040838503121561045257600080fd5b8235915060208301356001600160a01b038116811461047057600080fd5b809150509250929050565b634e487b7160e01b600052601160045260246000fd5b818103818111156104a4576104a461047b565b92915050565b80820281158282048414176104a4576104a461047b56fea2646970667358221220042c216fd6ae9b2497ca56ef4cafc155c723b17eef221bab3ce2ed503ee5434164736f6c63430008120033",
+  "devdoc": {
+    "author": "Крипто$лоня₽ы team",
+    "kind": "dev",
+    "methods": {
+      "constructor": {
+        "params": {
+          "rewardToken_": "Reward token contract address",
+          "stakingNft_": "NFT contract address"
+        }
+      },
+      "stake(uint256,address)": {
+        "details": "NOT transferring NFT directly to the staking. Ownership of the NFT remains with the employee. Double-stake is impossible due to mint NFT logic.",
+        "params": {
+          "holder_": "Holder address",
+          "nftId_": "NFT token ID"
+        }
+      },
+      "unstake(uint256)": {
+        "details": "Double-unstake is not possible due to burn NFT logic",
+        "params": {
+          "nftId_": "NFT token ID"
+        }
+      }
+    },
+    "title": "NFT Staking",
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {
+      "stake(uint256,address)": {
+        "notice": "Stakes NFT on the Staking contract"
+      },
+      "unstake(uint256)": {
+        "notice": "Unstakes NFT and mints the reward to user"
+      }
+    },
+    "notice": "NFT staking for company employees",
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [
+      {
+        "astId": 5346,
+        "contract": "contracts/Staking.sol:Staking",
+        "label": "stakesInfo",
+        "offset": 0,
+        "slot": "0",
+        "type": "t_mapping(t_uint256,t_struct(Stake)5334_storage)"
+      }
+    ],
+    "types": {
+      "t_address": {
+        "encoding": "inplace",
+        "label": "address",
+        "numberOfBytes": "20"
+      },
+      "t_mapping(t_uint256,t_struct(Stake)5334_storage)": {
+        "encoding": "mapping",
+        "key": "t_uint256",
+        "label": "mapping(uint256 => struct Staking.Stake)",
+        "numberOfBytes": "32",
+        "value": "t_struct(Stake)5334_storage"
+      },
+      "t_struct(Stake)5334_storage": {
+        "encoding": "inplace",
+        "label": "struct Staking.Stake",
+        "members": [
+          {
+            "astId": 5327,
+            "contract": "contracts/Staking.sol:Staking",
+            "label": "user",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_address"
+          },
+          {
+            "astId": 5329,
+            "contract": "contracts/Staking.sol:Staking",
+            "label": "earned",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 5331,
+            "contract": "contracts/Staking.sol:Staking",
+            "label": "startTimestamp",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 5333,
+            "contract": "contracts/Staking.sol:Staking",
+            "label": "unstakedAt",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_uint256"
+          }
+        ],
+        "numberOfBytes": "128"
+      },
+      "t_uint256": {
+        "encoding": "inplace",
+        "label": "uint256",
+        "numberOfBytes": "32"
+      }
+    }
+  }
+}
