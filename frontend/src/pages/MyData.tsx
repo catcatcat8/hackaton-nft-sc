@@ -16,6 +16,7 @@ import {
   Avatar,
   Switch,
   Divider,
+  CircularProgress,
 } from '@mui/material'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 
@@ -31,6 +32,8 @@ import {
 } from '../constants'
 import { ethers } from 'ethers'
 import { acceptCertificate, acceptReview } from '../api'
+import { handleCopyToClipboard } from '../utils'
+import { toast } from 'react-toastify'
 
 // Define the structure of the user data
 interface UserData {
@@ -48,19 +51,10 @@ const MyDataPage: React.FC = () => {
   const [sortField, setSortField] = useState<keyof UserData>('name') // Field to sort by
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc') // Sort order (asc or desc)
   const [sortRType, sortFieldReviewType] = useState<number | null | string>(
-    null,
+    null
   )
 
-  const handleCopyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text).then(
-      () => {
-        alert(`${text} copied to clipboard!`)
-      },
-      (err) => {
-        alert(`Failed to copy: ' ${err}`)
-      },
-    )
-  }
+  const [isLoading, setIsLoading] = useState(false)
 
   const [isQueuesState, setIsQueusState] = useState(true) // Set is queues state
   const [isCertificates, setIsCertificates] = useState(true) // Set is certificates data
@@ -78,8 +72,20 @@ const MyDataPage: React.FC = () => {
     // Filter: If searchTerm is not empty, filter the data
     if (searchTerm) {
       filteredData = filteredData.filter((item) => {
+        if (isCertificates) {
+          return (
+            item?.certificateId
+              ?.toLowerCase()
+              .includes(searchTerm.toLowerCase()) ||
+            item.fullName.toLowerCase().includes(searchTerm.toLowerCase())
+          )
+        }
+
         if (item?.fullName) {
-          return item.fullName.toLowerCase().includes(searchTerm.toLowerCase())
+          return (
+            item?.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            item?.fullNameTo.toLowerCase().includes(searchTerm.toLowerCase())
+          )
         }
 
         if (item?.fullNameTo) {
@@ -90,7 +96,7 @@ const MyDataPage: React.FC = () => {
       })
     }
 
-    if (!isCertificates && sortRType) {
+    if (!isCertificates && (sortRType || sortRType === 0)) {
       filteredData = filteredData.filter((item) => {
         return item?.reviewType === sortRType
       })
@@ -111,10 +117,12 @@ const MyDataPage: React.FC = () => {
 
   // Reset to original data
   const handleReset = () => {
-    setData(certificatesData)
-    setSearchTerm('')
-    setSortField('name')
-    setSortOrder('asc')
+    if (!isCertificates) {
+      setData(reviewsData)
+    } else {
+      setData(certificatesData)
+    }
+    sortFieldReviewType(null)
   }
 
   useEffect(() => {
@@ -123,11 +131,10 @@ const MyDataPage: React.FC = () => {
     } else if (isQueuesState && !isCertificates) {
       setData(cloneDeep(reviewsData))
     }
-  }, [isQueuesState, isCertificates])
+  }, [isQueuesState, isCertificates, reviewsData, certificatesData])
 
   const mintCertificate = async (values: any) => {
-    alert('todo: лоадер на кнопку')
-
+    setIsLoading(true)
     const CURRENT_NFT_ID = await NFT_CONTRACT.counter()
     const sigToSign = `auth:ethr:${ALLOWED_CHAIN_ID}:${NFT_CONTRACT.address.toLowerCase()}:${CURRENT_NFT_ID.toString()}`
 
@@ -135,7 +142,7 @@ const MyDataPage: React.FC = () => {
     try {
       signature = await signer!.signMessage(sigToSign)
     } catch (error) {
-      alert('SIG ERROR')
+      toast.error('SIG ERROR')
       return
     }
 
@@ -143,7 +150,7 @@ const MyDataPage: React.FC = () => {
     try {
       signatureForDbUpdate = await signer!.signMessage(values._id)
     } catch (error) {
-      alert('SIG ERROR')
+      toast.error('SIG ERROR')
       return
     }
 
@@ -157,12 +164,14 @@ const MyDataPage: React.FC = () => {
           certificateId: values.certificateId,
           receiptDate: values.receiptDate,
           challengeSig: signature,
-        },
+        }
       )
       responseData = response.data
-      alert(`BACKEND SUCCESS: ${IPFS_BASE_LINK + responseData.data.ipfsHash}`)
+      toast.success(
+        `BACKEND SUCCESS: ${IPFS_BASE_LINK + responseData.data.ipfsHash}`
+      )
     } catch (error) {
-      alert('BACKEND ERROR')
+      toast.error('BACKEND ERROR')
       return
     }
 
@@ -171,12 +180,12 @@ const MyDataPage: React.FC = () => {
       try {
         const tx = await NFT_CONTRACT.connect(signer!).mint(
           values.workerAddr,
-          responseData.data.ipfsHash,
+          responseData.data.ipfsHash
         )
         txWaited = await tx.wait()
-        alert(`TX SUCCESS: ${SCANNER_LINK + tx.hash}`)
+        toast.success(`TX SUCCESS: ${SCANNER_LINK + tx.hash}`)
       } catch (error) {
-        alert('WHY REJECT??')
+        toast.error('WHY REJECT??')
       }
     }
 
@@ -185,21 +194,27 @@ const MyDataPage: React.FC = () => {
       try {
         response = await acceptCertificate(values._id, signatureForDbUpdate)
       } catch (error) {
-        alert('BACKEND ERROR')
+        toast.error('BACKEND ERROR')
         return
       }
     }
 
     if (response == 200) {
-      alert(
-        'транза прошла, в дб флаг поменяли, на этом моменте кнопку у этого итема можно убирать',
+      toast.success(
+        'TODO транза прошла, в дб флаг поменяли, на этом моменте кнопку у этого итема можно убирать'
       )
+
+      handleCopyToClipboard(IPFS_BASE_LINK + responseData.data.ipfsHash)
+
+      setTimeout(() => {
+        window.location.reload()
+      }, 1500)
       return
     }
   }
 
   const mintReview = async (values: any) => {
-    alert('todo: лоадер на кнопку')
+    setIsLoading(true)
     const CURRENT_NFT_ID = await NFT_CONTRACT.counter()
     const sigToSign = `auth:ethr:${ALLOWED_CHAIN_ID}:${NFT_CONTRACT.address.toLowerCase()}:${CURRENT_NFT_ID.toString()}`
 
@@ -207,7 +222,7 @@ const MyDataPage: React.FC = () => {
     try {
       signature = await signer!.signMessage(sigToSign)
     } catch (error) {
-      alert('SIG ERROR')
+      toast.error('SIG ERROR')
       return
     }
 
@@ -215,7 +230,7 @@ const MyDataPage: React.FC = () => {
     try {
       signatureForDbUpdate = await signer!.signMessage(values._id)
     } catch (error) {
-      alert('SIG ERROR')
+      toast.error('SIG ERROR')
       return
     }
 
@@ -229,12 +244,12 @@ const MyDataPage: React.FC = () => {
           reviewText: values.reviewText,
           reviewType: values.reviewType,
           challengeSig: signature,
-        },
+        }
       )
       responseData = response.data
-      alert(`BACKEND SUCCESS: ${IPFS_BASE_LINK + responseData.data.ipfsHash}`)
+      toast.success(`Успех! : ${IPFS_BASE_LINK + responseData.data.ipfsHash}`)
     } catch (error) {
-      alert('BACKEND ERROR')
+      toast.error('BACKEND ERROR')
       return
     }
 
@@ -243,13 +258,13 @@ const MyDataPage: React.FC = () => {
       try {
         const tx = await NFT_CONTRACT.connect(signer!).mint(
           values.reviewTo,
-          responseData.data.ipfsHash,
+          responseData.data.ipfsHash
         )
         txWaited = await tx.wait()
-        alert(`TX SUCCESS: ${SCANNER_LINK + tx.hash}`)
+        toast.success(`TX SUCCESS: ${SCANNER_LINK + tx.hash}`)
       } catch (error) {
         console.log(error)
-        alert('WHY REJECT??')
+        toast.error('WHY REJECT??')
       }
     }
 
@@ -258,17 +273,41 @@ const MyDataPage: React.FC = () => {
       try {
         response = await acceptReview(values._id, signatureForDbUpdate)
       } catch (error) {
-        alert('BACKEND ERROR')
+        toast.error('BACKEND ERROR')
         return
       }
     }
 
     if (response == 200) {
-      alert(
-        'транза прошла, в дб флаг поменяли, на этом моменте кнопку у этого итема можно убирать',
+      toast.success(
+        'транза прошла, в дб флаг поменяли, на этом моменте кнопку у этого итема можно убирать'
       )
+
+      handleCopyToClipboard(IPFS_BASE_LINK + responseData.data.ipfsHash)
+
+      setTimeout(() => {
+        window.location.reload()
+      }, 1500)
+
       return
     }
+  }
+
+  if (isLoading) {
+    return (
+      <Box sx={{ textAlign: 'center' }}>
+        <Box
+          sx={{ display: 'flex', justifyContent: 'center', marginTop: '400px' }}
+        >
+          <CircularProgress size="200px" />
+        </Box>
+        <Box sx={{ marginTop: '30px' }}>
+          <Typography variant="h2">
+            Загрузка, пожалуйста не перезагружайте страницу
+          </Typography>
+        </Box>
+      </Box>
+    )
   }
 
   return (
@@ -286,19 +325,6 @@ const MyDataPage: React.FC = () => {
         onChange={(e) => setSearchTerm(e.target.value)}
       />
 
-      {/* Sort: Dropdown for sorting field */}
-      <FormControl fullWidth margin="normal">
-        <InputLabel>Sort By</InputLabel>
-        <Select
-          value={sortField}
-          onChange={(e) => setSortField(e.target.value as keyof UserData)}
-        >
-          <MenuItem value="name">Name</MenuItem>
-          <MenuItem value="age">Age</MenuItem>
-          <MenuItem value="date">Date</MenuItem>
-        </Select>
-      </FormControl>
-
       {!isCertificates && (
         <FormControl fullWidth margin="normal">
           <InputLabel>Тип отзыва</InputLabel>
@@ -312,18 +338,6 @@ const MyDataPage: React.FC = () => {
           </Select>
         </FormControl>
       )}
-
-      {/* Sort: Dropdown for sorting order */}
-      <FormControl fullWidth margin="normal">
-        <InputLabel>Sort Order</InputLabel>
-        <Select
-          value={sortOrder}
-          onChange={(e) => setSortOrder(e.target.value as 'asc' | 'desc')}
-        >
-          <MenuItem value="asc">Ascending</MenuItem>
-          <MenuItem value="desc">Descending</MenuItem>
-        </Select>
-      </FormControl>
 
       {/* Buttons */}
       <Button
@@ -403,7 +417,11 @@ const MyDataPage: React.FC = () => {
                       </ListItemAvatar>
                       {/* User Info */}
                       <ListItemText
-                        primary={`Обладатель ${item.fullName}, id сертификата: ${item.certificateId}, Date: ${dayjs(item.receiptDate)}`}
+                        primary={`Обладатель ${
+                          item.fullName
+                        }, id сертификата: ${item.certificateId}, Date: ${dayjs(
+                          item.receiptDate
+                        )}`}
                       />
                       <Button
                         variant="outlined"
@@ -473,7 +491,7 @@ const MyDataPage: React.FC = () => {
                       >
                         {item?.fullNameTo ? (
                           <>
-                            <Avatar src={item.imageFrom} />
+                            <Avatar src={item.imageTo} />
                             `На {item?.fullNameTo}`
                           </>
                         ) : (

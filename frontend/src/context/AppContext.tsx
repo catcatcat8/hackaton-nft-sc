@@ -20,6 +20,7 @@ import { redirect } from 'react-router-dom'
 import { eraseCookie, getCookie, setCookie } from '../pages/AuthPage'
 import { getCertificatesQueue, getReviewsQueue } from '../api'
 import { DATA, UserProfile } from '../types'
+import { toast } from 'react-toastify'
 
 // Define types for the context state
 interface AppContextProps {
@@ -46,6 +47,8 @@ interface AppContextProps {
   reviewsData: any
   setReviewsData: (nftData: any) => void
   myMainNft?: null | UserProfile
+  nftServiceInfo: any
+  setNftServiceInfo: (nftData: any) => void
 }
 
 // Create the context with default values
@@ -73,6 +76,8 @@ const AppContext = createContext<AppContextProps>({
   reviewsData: null,
   setReviewsData: () => {},
   myMainNft: null,
+  nftServiceInfo: null,
+  setNftServiceInfo: () => {}
 })
 
 interface AppProviderProps {
@@ -92,6 +97,9 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   const [isHolder, setIsHolder] = useState<boolean | null>(null)
   const [myNftData, setMyNftData] = useState<any | null>(null)
   const [myMainNft, setMyMainNft] = useState<any | null>(null)
+
+  const [nftServiceInfo, setNftServiceInfo] = useState<any | null>(null)
+
 
   const [certificatesData, setCertificatesData] = useState<any | null>(null)
   const [reviewsData, setReviewsData] = useState<any | null>(null)
@@ -158,18 +166,6 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
 
   useEffect(() => {
     if (account && myNftData) {
-      console.log('MY MAIN NFT', myNftData)
-
-      console.log(
-        'DEBUG',
-        (myNftData.data?.responseFinalle as DATA[]).find(
-          (item) =>
-            item &&
-            item?.walletAddr &&
-            account?.toLowerCase() === item?.walletAddr.toLowerCase() &&
-            item?.type === 'MAIN',
-        ),
-      )
       setMyMainNft(
         (myNftData.data?.responseFinalle as DATA[]).find(
           (item) =>
@@ -210,9 +206,23 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
         responseData = response.data
 
         setMyNftData(responseData)
+
+////////////////////////////////////////////////////
+
+        const serviceData = await getAllNftsInfo()
+
+        const preparedServiceData = serviceData.map((item) => item.tokenUri)
+
+        const serviceDataresponse = await axios.post(
+          'http://localhost:5000/api/getIpfsInfo',
+          { ipfsLink: preparedServiceData },
+        )
+
+
+        setNftServiceInfo(serviceDataresponse?.data)
       }
     } catch (error) {
-      alert(`BACKEND ERROR ${error}`)
+      toast.error(`BACKEND ERROR ${error}`)
       return
     }
   }, [isAdmin, account])
@@ -226,7 +236,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
 
     try {
     } catch (error) {
-      alert('BACKEND ERROR')
+      toast.error('BACKEND ERROR')
       return
     }
   }, [])
@@ -334,6 +344,8 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
         certificatesData,
         setCertificatesData,
         myMainNft,
+        nftServiceInfo,
+        setNftServiceInfo
       }}
     >
       {children}

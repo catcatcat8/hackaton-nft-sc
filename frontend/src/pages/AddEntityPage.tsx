@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import {
   Box,
   Button,
@@ -19,6 +19,8 @@ import { IPFS_BASE_LINK, PINATA } from '../constants'
 import axios from 'axios'
 import { useAppContext } from '../context/AppContext'
 import { ethers } from 'ethers'
+import { toast } from 'react-toastify'
+import { DATA } from '../types'
 
 enum ReviewType {
   bad = 'bad',
@@ -38,21 +40,18 @@ interface Certificate {
   file: File | null
 }
 
+interface UserCreds {
+  address?: string
+  readableName?: string
+}
+
+type GetUsersMapCb = () => Array<UserCreds | undefined | null>
+
 const reviewBaseState = { target: null, text: null, type: null }
 const diplomaBaseState = { id: null, date: null, file: null }
 
 const AddEntityPage: React.FC = () => {
-  const {
-    account,
-    name,
-    setName,
-    email,
-    setEmail,
-    bio,
-    setBio,
-    isAdmin,
-    signer,
-  } = useAppContext()
+  const { account, nftServiceInfo } = useAppContext()
 
   const [isFormOne, setIsFormOne] = useState(true) // Control which form to show
   const [formOneData, setFormOneData] = useState<Review>(reviewBaseState)
@@ -82,13 +81,20 @@ const AddEntityPage: React.FC = () => {
           reviewTo: formOneData.target,
           reviewText: formOneData.text,
           reviewType: formOneData.type,
-        },
+        }
       )
       if (response.status == 200) {
-        alert(`BACKEND SUCCESS`)
+        toast.success(`Отзыв успешно отправлен`)
+
+        setFormTwoData(diplomaBaseState)
+        setFormOneData(reviewBaseState)
+
+        setTimeout(() => {
+          window.location.reload()
+        }, 1500)
       }
     } catch (error) {
-      alert('BACKEND ERROR')
+      toast.error('BACKEND ERROR')
       return
     }
   }
@@ -99,7 +105,7 @@ const AddEntityPage: React.FC = () => {
     e.preventDefault()
 
     if (!formTwoData.file) {
-      alert('NO FILE TO UPLOAD')
+      toast.error('NO FILE TO UPLOAD')
       return
     }
 
@@ -107,11 +113,13 @@ const AddEntityPage: React.FC = () => {
     try {
       const upload = await PINATA.upload.file(formTwoData.file)
       fileLink = IPFS_BASE_LINK + upload.IpfsHash
-      alert(
-        `hash загруженного на ipfs сертификата ${IPFS_BASE_LINK + upload.IpfsHash}`,
+      toast.success(
+        `hash загруженного на ipfs сертификата ${
+          IPFS_BASE_LINK + upload.IpfsHash
+        }`
       )
     } catch (error) {
-      alert('IPFS ERROR :(')
+      toast.error('IPFS ERROR :(')
       return
     }
 
@@ -123,16 +131,40 @@ const AddEntityPage: React.FC = () => {
           workerAddr: account,
           certificateId: formTwoData.id,
           receiptDate: formTwoData.date?.unix(),
-        },
+        }
       )
       if (response.status == 200) {
-        alert(`BACKEND SUCCESS`)
+        toast.success(`Успешно отправлен сертификат`)
+
+        setFormTwoData(diplomaBaseState)
+        setFormOneData(reviewBaseState)
+
+        setTimeout(() => {
+          window.location.reload()
+        }, 1500)
       }
     } catch (error) {
-      alert('BACKEND ERROR')
+      toast.error('BACKEND ERROR')
       return
     }
   }
+
+  const getUsersMap = useCallback<GetUsersMapCb>(() => {
+    return (nftServiceInfo?.data?.responseFinalle as DATA[])?.map((item) => {
+      if (
+        item &&
+        item?.walletAddr &&
+        item?.type === 'MAIN' &&
+        item?.fullName &&
+        item?.fullName?.length > 0
+      ) {
+        return {
+          address: item.walletAddr,
+          readableName: item.fullName,
+        }
+      }
+    })
+  }, [nftServiceInfo])
 
   return (
     <Box sx={{ maxWidth: '500px', margin: '0 auto', textAlign: 'center' }}>
@@ -165,16 +197,34 @@ const AddEntityPage: React.FC = () => {
       {/* Form 1 */}
       {isFormOne ? (
         <form onSubmit={handleFormOneSubmit}>
-          <TextField
-            label="На кого отзыв"
-            fullWidth
-            margin="normal"
-            value={formOneData.target}
-            onChange={(e) =>
-              setFormOneData({ ...formOneData, target: e.target.value })
-            }
-            required
-          />
+          <FormControl fullWidth>
+            <InputLabel id="user-id-label">На кого отзыв</InputLabel>
+            <Select
+              labelId="user-id-label"
+              id="user-id"
+              value={formOneData.target}
+              label="На кого отзыв"
+              onChange={(e) => {
+                setFormOneData({
+                  ...formOneData,
+                  target: e.target.value,
+                })
+              }}
+            >
+              {getUsersMap()?.map((item, i) => {
+                if (item?.address && item?.readableName)
+                  return (
+                    <MenuItem
+                      key={item?.address ? item?.address + i : i}
+                      value={item?.address}
+                    >
+                      {item?.readableName}
+                    </MenuItem>
+                  )
+              })}
+            </Select>
+          </FormControl>
+
           <TextField
             label="Текст отзыва"
             fullWidth

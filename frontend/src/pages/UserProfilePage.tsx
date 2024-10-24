@@ -17,28 +17,20 @@ import dayjs from 'dayjs'
 
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import { DATA, UserProfile } from '../types'
+import { handleCopyToClipboard } from '../utils'
+import { IPFS_BASE_LINK } from '../constants'
 
 const userProfile: UserProfile = {
   fullName: 'Loading...',
   dateOfBirth: 'Loading...',
   avatar: 'https://via.placeholder.com/150',
   jobTitle: 'Loading...',
-  skills: ['JavaScript', 'React', 'Node.js', 'TypeScript', 'GraphQL'],
+  skills: 'JavaScript React Node.js TypeScript GraphQL',
 }
 
 const UserProfilePage: React.FC = () => {
   const { myNftData: data, myMainNft, isAdmin } = useAppContext()
 
-  const handleCopyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text).then(
-      () => {
-        alert(`${text} copied to clipboard!`)
-      },
-      (err) => {
-        alert(`Failed to copy: ' ${err}`)
-      },
-    )
-  }
 
   return (
     <Box sx={{ maxWidth: '800px', margin: '0 auto', padding: '24px' }}>
@@ -90,8 +82,7 @@ const UserProfilePage: React.FC = () => {
               {/* Job Title */}
               <Grid item xs={12} md={6}>
                 <Typography variant="subtitle1" gutterBottom>
-                  Должность:
-                </Typography>
+                  Должность                </Typography>
                 <Typography variant="body1">
                   {myMainNft?.jobTitle ?? userProfile.jobTitle}
                 </Typography>
@@ -104,12 +95,12 @@ const UserProfilePage: React.FC = () => {
                 </Typography>
                 <List>
                   {myMainNft
-                    ? myMainNft?.jobTitle.split(' ').map((skill, index) => (
+                    ? myMainNft?.skills?.split(' ').map((skill, index) => (
                         <ListItem key={index} sx={{ display: 'inline' }}>
                           <Chip label={skill} sx={{ margin: '4px' }} />
                         </ListItem>
                       ))
-                    : userProfile.skills.map((skill, index) => (
+                    : userProfile.skills?.split(' ').map((skill, index) => (
                         <ListItem key={index} sx={{ display: 'inline' }}>
                           <Chip label={skill} sx={{ margin: '4px' }} />
                         </ListItem>
@@ -144,7 +135,7 @@ const UserProfilePage: React.FC = () => {
                           variant="outlined"
                           startIcon={<ContentCopyIcon />}
                           onClick={() =>
-                            handleCopyToClipboard(item.bigId || '')
+                            handleCopyToClipboard( item.bigId)
                           }
                           sx={{ marginTop: '8px' }}
                         >
@@ -183,7 +174,7 @@ const UserProfilePage: React.FC = () => {
                           variant="outlined"
                           startIcon={<ContentCopyIcon />}
                           onClick={() =>
-                            handleCopyToClipboard(item.bigId || '')
+                            handleCopyToClipboard(item.bigId)
                           }
                           sx={{ marginTop: '8px' }}
                         >
@@ -203,12 +194,15 @@ const UserProfilePage: React.FC = () => {
                         <Button
                           variant="outlined"
                           startIcon={<ContentCopyIcon />}
-                          onClick={() =>
-                            handleCopyToClipboard(item.certId || '')
+                          onClick={() =>{
+                            if (item?.imageCert) {
+                              window.open(item?.imageCert, '_blank')?.focus() 
+                            }
+                           }
                           }
                           sx={{ marginTop: '8px' }}
                         >
-                          Адрес
+                          Открыть сертификат
                         </Button>
                       </ListItem>
                       <Divider variant="middle" flexItem />
@@ -225,7 +219,7 @@ const UserProfilePage: React.FC = () => {
                       <Button
                         variant="outlined"
                         startIcon={<ContentCopyIcon />}
-                        onClick={() => handleCopyToClipboard(item.bigId || '')}
+                        onClick={() => handleCopyToClipboard(item.bigId)}
                         sx={{ marginTop: '8px' }}
                       >
                         IPFS
@@ -236,7 +230,7 @@ const UserProfilePage: React.FC = () => {
                           variant="outlined"
                           startIcon={<ContentCopyIcon />}
                           onClick={() =>
-                            handleCopyToClipboard(item.reviewFrom || '')
+                            handleCopyToClipboard(item?.reviewFromImage ?? '')
                           }
                           sx={{ marginTop: '8px' }}
                         >
@@ -255,7 +249,7 @@ const UserProfilePage: React.FC = () => {
                           variant="outlined"
                           startIcon={<ContentCopyIcon />}
                           onClick={() =>
-                            handleCopyToClipboard(item.reviewTo || '')
+                            handleCopyToClipboard(item?.reivewToImage ?? '')
                           }
                           sx={{ marginTop: '8px' }}
                         >

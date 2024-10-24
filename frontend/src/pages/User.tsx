@@ -6,6 +6,7 @@ import { ethers } from 'ethers'
 import * as isIPFS from 'is-ipfs'
 import { NFT_CONTRACT, SCANNER_LINK } from '../constants'
 import { Field, Form, Formik } from 'formik'
+import { toast } from 'react-toastify'
 
 const Profile: React.FC = () => {
   const {
@@ -48,30 +49,29 @@ const Profile: React.FC = () => {
 
   const handleSubmit = async (values: any) => {
     if (!isAdmin) {
-      alert('NOT ADMIN!')
+      toast.error('NOT ADMIN!')
       return
     }
 
     // if (!ethers.utils.isAddress(values.walletAddr)) {
-    //   alert('WTF? ITS NOT ETH ADDR')
+    //   alert('Ошибка нет адреса')
     //   return
     // }
     // if (!isIPFS.cid(values.ipfsLink)) {
-    //   alert('WTF? NOT IPFS LINK')
+    //   alert('Ошибка нет ипфс ссылки')
     //   return
     // }
     try {
       const tx = await NFT_CONTRACT.connect(signer!).mint(
         values.walletAddr,
-        values.ipfsLink,
+        values.ipfsLink
       )
 
       await tx.wait()
-      alert(`SUCCESS: ${SCANNER_LINK + tx.hash}`)
+      toast.success(`SUCCESS: ${SCANNER_LINK + tx.hash}`)
     } catch (error) {
-      alert('WHY REJECT??')
+      toast.error('WHY REJECT??')
     }
-    console.log('Form Submitted:', values)
     // Further logic (e.g., sending data to blockchain or backend)
   }
 
