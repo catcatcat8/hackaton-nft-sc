@@ -1,4 +1,10 @@
-import React, { createContext, useState, useEffect, ReactNode, useCallback } from 'react'
+import React, {
+  createContext,
+  useState,
+  useEffect,
+  ReactNode,
+  useCallback,
+} from 'react'
 import detectEthereumProvider from '@metamask/detect-provider'
 import { JsonRpcSigner, Network, Web3Provider } from '@ethersproject/providers'
 import { ALLOWED_CHAIN_ID, NFT_CONTRACT } from '../constants'
@@ -27,13 +33,13 @@ interface AppContextProps {
   isAdmin: boolean | null
   setIsAdmin: (isAdmin: boolean) => void
   isHolder: boolean | null
-  setIsHolder: (isHolder: boolean) => void,
-  myNftData: any,
-  setMyNftData: (nftData: any)=> void,
-  certificatesData: any,
-  setCertificatesData: (nftData: any)=> void,
-  reviewsData: any,
-  setReviewsData: (nftData: any)=> void
+  setIsHolder: (isHolder: boolean) => void
+  myNftData: any
+  setMyNftData: (nftData: any) => void
+  certificatesData: any
+  setCertificatesData: (nftData: any) => void
+  reviewsData: any
+  setReviewsData: (nftData: any) => void
 }
 
 // Create the context with default values
@@ -55,9 +61,11 @@ const AppContext = createContext<AppContextProps>({
   isHolder: null,
   setIsHolder: () => {},
   myNftData: null,
-  setMyNftData: ()=> {},
-  certificatesData: null, setCertificatesData: () => {},
-  reviewsData: null, setReviewsData: () => {}
+  setMyNftData: () => {},
+  certificatesData: null,
+  setCertificatesData: () => {},
+  reviewsData: null,
+  setReviewsData: () => {},
 })
 
 interface AppProviderProps {
@@ -80,7 +88,6 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
 
   const [certificatesData, setCertificatesData] = useState<any | null>(null)
   const [reviewsData, setReviewsData] = useState<any | null>(null)
-
 
   const setupProvider = () => {
     if (!window.ethereum) throw Error('Could not find Metamask extension')
@@ -135,170 +142,135 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     return accounts
   }
 
-  const getIsHolder = useCallback(async() => {
+  const getIsHolder = useCallback(async () => {
     if (account) {
-    const isHolder= await isNftHolder(account)
-    setIsHolder(isHolder)
-   
+      const isHolder = await isNftHolder(account)
+      setIsHolder(isHolder)
     }
   }, [account])
 
-
   useEffect(() => {
-    if (account && myNftData){
-      setMyMainNft((myNftData.data?.responseFinalle as DATA[]).find(item => item && item?.walletAddr && (account?.toLowerCase() === item?.walletAddr.toLowerCase() && item?.type === 'MAIN')))
-
+    if (account && myNftData) {
+      setMyMainNft(
+        (myNftData.data?.responseFinalle as DATA[]).find(
+          (item) =>
+            item &&
+            item?.walletAddr &&
+            account?.toLowerCase() === item?.walletAddr.toLowerCase() &&
+            item?.type === 'MAIN',
+        ),
+      )
     }
   }, [account, myNftData])
 
-  const getAllNftsInfoMain =useCallback(async () => {
-      const data  = await getAllNftsInfo()
-      
-      let responseData: any = null
+  const getAllNftsInfoMain = useCallback(async () => {
+    const data = await getAllNftsInfo()
 
+    let responseData: any = null
 
+    try {
+      const preparedData = data.map((item) => item.tokenUri)
 
+      const response = await axios.post(
+        'http://localhost:5000/api/getIpfsInfo',
+        { ipfsLink: preparedData },
+      )
+      responseData = response.data
 
-
-      try {
-
-        const preparedData = data.map((item) => item.tokenUri)
-
-        const response = await axios.post(
-          'http://localhost:5000/api/getIpfsInfo',
-          {ipfsLink : preparedData}
-        )
-        responseData = response.data
-
-
-
-
-        setMyNftData(responseData)
-        
-      } catch (error) {
-        alert(`BACKEND ERROR ${error}`) 
-        return
-      }
-      
+      setMyNftData(responseData)
+    } catch (error) {
+      alert(`BACKEND ERROR ${error}`)
+      return
+    }
   }, [])
 
-
-  const getQueuesData =useCallback(async () => {
-    const dataCertificates  = await getCertificatesQueue()
+  const getQueuesData = useCallback(async () => {
+    const dataCertificates = await getCertificatesQueue()
     const dataReviews = await getReviewsQueue()
 
-   
     setReviewsData(dataReviews)
     setCertificatesData(dataCertificates)
 
-
-
-
-
     try {
-
     } catch (error) {
       alert('BACKEND ERROR')
       return
     }
-    
-}, [])
+  }, [])
 
   // Check if MetaMask is connected on app load
   useEffect(() => {
     if (window.ethereum) {
-
-
-
-
-
-    const checkConnection = async () => {
-
-      const provider = setupProvider()
-      if (provider) {
-        const accounts = await provider.send('eth_accounts', [])
-        if (accounts.length > 0) {
+      const checkConnection = async () => {
+        const provider = setupProvider()
+        if (provider) {
+          const accounts = await provider.send('eth_accounts', [])
           if (accounts.length > 0) {
-            setAccount(accounts[0])
-          }
-          const signer: JsonRpcSigner = await provider.getSigner()
-          const network: Network = await provider.getNetwork()
-
-          setNetwork(network)
-
-          if (network.chainId != ALLOWED_CHAIN_ID) {
-            try {
-              await provider.send('wallet_switchEthereumChain', [
-                { chainId: ALLOWED_CHAIN_ID },
-              ])
-            } catch (switchError) {
-              await provider.send('wallet_addEthereumChain', [
-                {
-                  chainId: '0x61',
-                  chainName: 'Smart Chain - Testnet',
-                  rpcUrls: ['https://data-seed-prebsc-1-s1.binance.org:8545'],
-                  blockExplorerUrls: ['https://testnet.bscscan.com'],
-                  nativeCurrency: {
-                    symbol: 'BNB',
-                    decimals: 18,
-                  },
-                },
-              ])
+            if (accounts.length > 0) {
+              setAccount(accounts[0])
             }
+            const signer: JsonRpcSigner = await provider.getSigner()
+            const network: Network = await provider.getNetwork()
+
+            setNetwork(network)
+
+            if (network.chainId != ALLOWED_CHAIN_ID) {
+              try {
+                await provider.send('wallet_switchEthereumChain', [
+                  { chainId: ALLOWED_CHAIN_ID },
+                ])
+              } catch (switchError) {
+                await provider.send('wallet_addEthereumChain', [
+                  {
+                    chainId: '0x61',
+                    chainName: 'Smart Chain - Testnet',
+                    rpcUrls: ['https://data-seed-prebsc-1-s1.binance.org:8545'],
+                    blockExplorerUrls: ['https://testnet.bscscan.com'],
+                    nativeCurrency: {
+                      symbol: 'BNB',
+                      decimals: 18,
+                    },
+                  },
+                ])
+              }
+            }
+
+            setAccount(accounts[0])
+            setSigner(signer)
+
+            const isAdmin = await checkIsAdmin(accounts[0])
+            setIsAdmin(isAdmin)
+
+            if (!account) {
+              // window.location.href ='/auth'
+            }
+
+            // eraseCookie('redirectedAuth')
           }
-
-          setAccount(accounts[0])
-          setSigner(signer)
-
-          const isAdmin = await checkIsAdmin(accounts[0])
-          setIsAdmin(isAdmin)
-
-          if (!account) {
-            // window.location.href ='/auth'
-          }
-
-
-          // eraseCookie('redirectedAuth')
         }
       }
-    }
-    
 
-    checkConnection()
+      checkConnection()
 
-    // setTimeout(()=> {
+      // setTimeout(()=> {
       if (!account && !getCookie('redirectedAuth')) {
         setCookie('redirectedAuth', 'true', 1)
         // window.location.href = '/auth'
       }
 
-   
-
-
-    getAllNftsInfoMain() 
-    getQueuesData()
-  
-  
-  
-  }
-    else {
+      getAllNftsInfoMain()
+      getQueuesData()
+    } else {
       if (!window.location.href.includes('setup-extension')) {
-      window.location.href = '/setup-extension';
+        window.location.href = '/setup-extension'
       }
     }
-  
   }, [])
 
   useEffect(() => {
-      
-
-      getIsHolder()
-      // getAllNftsInfo()
-
-
-       
-   
-   }, [account])
+    getIsHolder()
+    // getAllNftsInfo()
+  }, [account])
 
   return (
     <AppContext.Provider
@@ -324,7 +296,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
         reviewsData,
         setReviewsData,
         certificatesData,
-        setCertificatesData
+        setCertificatesData,
       }}
     >
       {children}

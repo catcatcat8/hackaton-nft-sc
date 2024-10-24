@@ -3,7 +3,6 @@ import { NFT_CONTRACT } from './constants'
 
 // VIEW
 
-
 // Проверка на то админ ли текущий пользователь
 export const checkIsAdmin = async (user: string): Promise<boolean> => {
   const adminRole = await NFT_CONTRACT.ADMIN_ROLE()
@@ -30,7 +29,7 @@ export const getUserNftUris = async (user: string): Promise<INFTMetadata0> => {
   const userNftIds = await NFT_CONTRACT.getIdsSliceByHolder(
     user,
     0,
-    userBalance
+    userBalance,
   )
   const uris = await NFT_CONTRACT.getURIs(userNftIds)
   return { tokenIds: userNftIds, tokenUris: uris }
@@ -44,7 +43,6 @@ export interface INFTMetadata1 {
 
 // Получение ВСЕХ нфт заминченных на контракте (ссылок на ипфс)
 export const getAllNftsInfo = async (): Promise<INFTMetadata1[]> => {
-
   const nftCount = await NFT_CONTRACT.counter()
   if (nftCount == BigNumber.from(0)) {
     return []

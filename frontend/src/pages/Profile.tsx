@@ -4,7 +4,13 @@ import { useAppContext } from '../context/AppContext'
 import * as Yup from 'yup'
 import { ethers } from 'ethers'
 import * as isIPFS from 'is-ipfs'
-import { ALLOWED_CHAIN_ID, IPFS_BASE_LINK, NFT_CONTRACT, PINATA, SCANNER_LINK } from '../constants'
+import {
+  ALLOWED_CHAIN_ID,
+  IPFS_BASE_LINK,
+  NFT_CONTRACT,
+  PINATA,
+  SCANNER_LINK,
+} from '../constants'
 import { Field, Form, Formik } from 'formik'
 import axios from 'axios'
 import { PinataSDK } from 'pinata-web3'
@@ -33,13 +39,13 @@ const Profile: React.FC = () => {
     signer,
   } = useAppContext()
 
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
 
   const changeHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files) {
-      setSelectedFile(event.target.files[0]);
+      setSelectedFile(event.target.files[0])
     }
-  };
+  }
 
   const initialValues: IMainNFTForm = {
     walletAddr: '',
@@ -98,23 +104,32 @@ const Profile: React.FC = () => {
       return
     }
 
-   
     let imageLink: string = ''
     try {
       const upload = await PINATA.upload.file(selectedFile)
       imageLink = IPFS_BASE_LINK + upload.IpfsHash
-      alert(`hash загруженной на ипфс картинки ${IPFS_BASE_LINK + upload.IpfsHash}`)
+      alert(
+        `hash загруженной на ипфс картинки ${IPFS_BASE_LINK + upload.IpfsHash}`,
+      )
     } catch (error) {
       alert('IPFS ERROR :(')
       return
     }
-    
+
     let responseData: any = null
     try {
       const response = await axios.post(
         'http://localhost:5000/api/createMainVC',
-        {imageLink: imageLink, workerAddr: values.walletAddr, skills: values.skills, jobTitle: values.jobTitle, fullName: values.fullName, dateOfHire: values.dateOfHire, challengeSig: signature}
-      ) 
+        {
+          imageLink: imageLink,
+          workerAddr: values.walletAddr,
+          skills: values.skills,
+          jobTitle: values.jobTitle,
+          fullName: values.fullName,
+          dateOfHire: values.dateOfHire,
+          challengeSig: signature,
+        },
+      )
       responseData = response.data
       alert(`BACKEND SUCCESS: ${IPFS_BASE_LINK + responseData.data.ipfsHash}`)
     } catch (error) {
@@ -123,11 +138,10 @@ const Profile: React.FC = () => {
     }
 
     if (responseData) {
-      
       try {
         const tx = await NFT_CONTRACT.connect(signer!).mint(
           values.walletAddr,
-          responseData.data.ipfsHash
+          responseData.data.ipfsHash,
         )
         await tx.wait()
         alert(`TX SUCCESS: ${SCANNER_LINK + tx.hash}`)
@@ -151,7 +165,7 @@ const Profile: React.FC = () => {
           <Formik
             initialValues={initialValues}
             // validationSchema={validationSchema} // IF NOT COMMENTED SUBMIT NOT WORKS
-            onSubmit={(handleSubmit)}
+            onSubmit={handleSubmit}
           >
             {({ errors, touched, isSubmitting }) => (
               <Form>
