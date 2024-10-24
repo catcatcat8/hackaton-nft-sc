@@ -6,6 +6,11 @@ FROM node:18-alpine
 # Прокидываем рабочую директорию для контейнера
 WORKDIR /app
 
+# Качаем курл
+RUN apk add --no-cache curl
+
+RUN curl -o root.crt https://storage.yandexcloud.net/cloud-certs/CA.pem
+
 # Установка зависимостей
 COPY package.json package-lock.json ./
 RUN npm install

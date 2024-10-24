@@ -17,7 +17,7 @@ const PRIVATE_KEY_BACKEND =
 const ISSUER_WALLET = new ethers.Wallet(PRIVATE_KEY_BACKEND)
 
 const PROVIDER = new ethers.providers.JsonRpcProvider(
-  'https://bsc-testnet.public.blastapi.io',
+  'https://bsc-testnet.public.blastapi.io'
 )
 
 const pinata = new PinataSDK({
@@ -33,13 +33,16 @@ const DB_HOSTS = [process.env.DB_HOSTS]
 const DB_USER = process.env.DB_USER
 const DB_PASS = process.env.DB_PASS
 const DB_HOME = process.env.DB_HOME
-const CACERT = `/home/${DB_HOME}/.mongodb/root.crt`
+const IS_DOCKER_RUN = process.env.IS_DOCKER_RUN
+const CACERT = IS_DOCKER_RUN
+  ? './root.crt'
+  : `/home/${DB_HOME}/.mongodb/root.crt`
 
 const url = util.format(
   'mongodb://%s:%s@%s/',
   DB_USER,
   DB_PASS,
-  DB_HOSTS.join(','),
+  DB_HOSTS.join(',')
 )
 
 const options = {
@@ -206,7 +209,7 @@ app.post('/api/acceptReview', async (req, res) => {
   try {
     await reviewsQueue.updateOne(
       { _id: new ObjectId(id.toString()) },
-      { $set: { isAccepted: true } },
+      { $set: { isAccepted: true } }
     )
   } catch (error) {
     console.log(error)
@@ -232,7 +235,7 @@ app.post('/api/acceptCertificate', async (req, res) => {
   try {
     await certificatesQueue.updateOne(
       { _id: new ObjectId(id) },
-      { $set: { isAccepted: true } },
+      { $set: { isAccepted: true } }
     )
   } catch (error) {
     res.status(500).json({ message: 'MongoDB certificates insert error' })
@@ -460,7 +463,7 @@ app.post('/api/getIpfsInfo', async (req, res) => {
         responseFinalle.push({
           bigId: resp[i].link,
           walletAddr: getWalletAddr(
-            resp[i].data?.data?.vc?.credentialSubject?.id,
+            resp[i].data?.data?.vc?.credentialSubject?.id
           ),
           type: 'MAIN',
           fullName: resp[i].data?.data?.vc?.credentialSubject?.data?.fullName,
@@ -499,12 +502,12 @@ app.post('/api/getIpfsInfo', async (req, res) => {
         resp[i].data?.data.vc.credentialSubject?.data?.type === 'CERTIFICATE'
       ) {
         let address = getWalletAddr(
-          resp[i].data?.data?.vc?.credentialSubject?.id,
+          resp[i].data?.data?.vc?.credentialSubject?.id
         )
 
         let userInfo = await usersInfo.findOne({
           address: getWalletAddr(
-            resp[i].data?.data?.vc?.credentialSubject?.id?.toLowerCase(),
+            resp[i].data?.data?.vc?.credentialSubject?.id?.toLowerCase()
           ),
         })
         let test = resp[i].data?.data
@@ -534,10 +537,10 @@ app.post('/api/getIpfsInfo', async (req, res) => {
         let test = resp[i].data?.data?.vc?.credentialSubject
 
         let reviewFrom = getWalletAddr(
-          resp[i].data?.data?.vc?.credentialSubject?.data.from,
+          resp[i].data?.data?.vc?.credentialSubject?.data.from
         )
         let reviewTo = getWalletAddr(
-          resp[i].data?.data?.vc?.credentialSubject?.id,
+          resp[i].data?.data?.vc?.credentialSubject?.id
         )
 
         let userInfoTo = await usersInfo.findOne({

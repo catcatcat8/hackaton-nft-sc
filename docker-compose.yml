@@ -2,6 +2,9 @@ version: '3.8'
 
 services:
   frontend:
+    environment:
+      - REACT_APP_PINATA_JWT=${REACT_APP_PINATA_JWT}
+      - REACT_APP_GATEWAY_URL=${REACT_APP_GATEWAY_URL}
     build:
       context: ./frontend
       dockerfile: Dockerfile
@@ -12,6 +15,16 @@ services:
       - app-network
 
   backend:
+    environment:
+      - PINATA_JWT=${PINATA_JWT}
+      - GATEWAY_URL=${GATEWAY_URL}
+      - DB_USER=${DB_USER}
+      - DB_PASS=${DB_PASS}
+      - DB_HOSTS=${DB_HOSTS}
+      - DB_HOME=${DB_HOME}
+      - PORT=${PORT}
+      - IS_DOCKER_RUN=${IS_DOCKER_RUN}
+      - REACT_APP_BACKEND_BASE_URL=${REACT_APP_BACKEND_BASE_URL}
     build:
       context: ./backend
       dockerfile: Dockerfile
