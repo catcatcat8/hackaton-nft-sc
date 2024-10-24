@@ -27,7 +27,7 @@ export interface UserProfile {
   dateOfBirth: string
   avatar: string
   jobTitle: string
-  skills: string[]
+  skills: string
   image?: string
   dateOfHire?: string
 }

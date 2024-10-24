@@ -72,7 +72,6 @@ const Profile: React.FC = () => {
     } catch (error) {
       toast.error('WHY REJECT??')
     }
-    console.log('Form Submitted:', values)
     // Further logic (e.g., sending data to blockchain or backend)
   }
 
