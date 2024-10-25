@@ -2,7 +2,9 @@
 
 import React, { useState } from 'react'
 import { QRCodeSVG } from 'qrcode.react'
-import { Button, TextField, Box } from '@mui/material'
+import { Button, TextField, Box, Typography } from '@mui/material'
+
+import { TelegramIcon, TelegramShareButton, VKShareCount } from 'react-share'
 
 const QrCodeGenerator: React.FC = () => {
   const [inputValue, setInputValue] = useState<string>('')
@@ -35,9 +37,28 @@ const QrCodeGenerator: React.FC = () => {
 
       {/* QR code will be displayed here */}
       {qrValue && (
-        <Box sx={{ mt: 3, textAlign: 'center' }}>
-          <QRCodeSVG value={qrValue} size={256} />
-        </Box>
+        <>
+          <Box sx={{ mt: 3, textAlign: 'center' }}>
+            <QRCodeSVG value={qrValue} size={256} />
+          </Box>
+          <Box
+            sx={{
+              display: 'flex',
+              width: '100%',
+              justifyContent: 'center',
+              justifyItems: 'center',
+            }}
+          >
+            <Box sx={{ mt: 2 }}>
+              <TelegramShareButton url={inputValue}>
+                <>
+                  <TelegramIcon size={32} />
+                  <Typography>Отправить в телеграм</Typography>
+                </>
+              </TelegramShareButton>
+            </Box>
+          </Box>
+        </>
       )}
     </Box>
   )
