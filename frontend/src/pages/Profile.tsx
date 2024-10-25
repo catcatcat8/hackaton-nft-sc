@@ -131,12 +131,12 @@ const Profile: React.FC = () => {
   return (
     <Box sx={{ maxWidth: '500px', margin: '0 auto' }}>
       <Typography variant="h4" gutterBottom>
-        Profile Page
+        Страница создания профиля
       </Typography>
       {account ? (
         <>
           <Typography variant="body1" gutterBottom>
-            Your Wallet Address: {account}
+            Ваш адрес кошелька: {account}
           </Typography>
           <Formik
             initialValues={initialValues}

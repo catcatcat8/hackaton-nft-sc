@@ -13,8 +13,7 @@ const axios = require('axios')
 const CHAIN_ID = 97
 const DID_PREFIX = `did:ethr:${CHAIN_ID}:`
 
-const PRIVATE_KEY_BACKEND =
-  '9ba09d2e2a9ca98f680977ed6b00ac05e5558b0fa29f3f3d97f5a75ce8c11cc5'
+const PRIVATE_KEY_BACKEND = process.env.PRIVATE_KEY_BACKEND
 const ISSUER_WALLET = new ethers.Wallet(PRIVATE_KEY_BACKEND)
 
 const PROVIDER = new ethers.providers.JsonRpcProvider(

@@ -11,7 +11,7 @@ import UserProfilePage from './pages/UserProfilePage'
 import SetupPage from './pages/SetupPage'
 import AuthPage from './pages/AuthPage'
 import { ToastContainer } from 'react-toastify'
-import 'react-toastify/dist/ReactToastify.css';
+import 'react-toastify/dist/ReactToastify.css'
 
 const App: React.FC = () => {
   const { account, connectWallet, isAdmin, isHolder } = useAppContext()
@@ -19,14 +19,20 @@ const App: React.FC = () => {
   return (
     <Router>
       <div>
-      <ToastContainer position="top-right" autoClose={7000} />
+        <ToastContainer position="top-right" autoClose={7000} />
 
         <AppBar position="static">
           <Toolbar>
-            <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-              Diamond Enterprise System
-            </Typography>
-            <nav>
+            <Link to="/" style={{ textDecoration: 'none', color: '#fff' }}>
+              <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+                Diamond Enterprise System
+              </Typography>
+            </Link>
+            <nav
+              style={{
+                marginLeft: 'auto',
+              }}
+            >
               <Link
                 to="/"
                 style={{
@@ -77,7 +83,10 @@ const App: React.FC = () => {
               )}
             </nav>
             {account ? (
-              <Typography variant="body1">{`Connected: ${account.substring(0, 6)}...${account.substring(account.length - 4)}`}</Typography>
+              <Typography variant="body1">{`Connected: ${account.substring(
+                0,
+                6
+              )}...${account.substring(account.length - 4)}`}</Typography>
             ) : (
               <Button color="inherit" onClick={connectWallet}>
                 Подключить кошелек
@@ -86,8 +95,6 @@ const App: React.FC = () => {
           </Toolbar>
         </AppBar>
         <Container>
-
-
           <Routes>
             <Route path="/" element={<UserProfilePage />} />
             <Route path="/profile" element={<Profile />} />
