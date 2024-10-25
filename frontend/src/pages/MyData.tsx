@@ -337,25 +337,7 @@ const MyDataPage: React.FC = () => {
         Reset
       </Button>
 
-      <Box sx={{ marginBottom: '20px' }}>
-        <Typography variant="body1" gutterBottom>
-          {isQueuesState ? 'Очередь на рассмотрение' : 'Существующие NFT'}
-        </Typography>
-        <Switch
-          checked={!isQueuesState}
-          onChange={() => {
-            if (isQueuesState && isCertificates) {
-              // setData(cloneDeep())
-            } else {
-              // setData(diplomaBaseState)
-            }
-
-            setIsQueusState(!isQueuesState)
-          }}
-          color="primary"
-        />
-      </Box>
-      <Box sx={{ marginBottom: '20px' }}>
+      <Box sx={{ marginBottom: '20px', marginTop: '20px' }}>
         <Typography variant="body1" gutterBottom>
           {isCertificates ? 'Сертификаты' : 'Отзывы'}
         </Typography>

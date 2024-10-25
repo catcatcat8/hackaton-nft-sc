@@ -18,7 +18,12 @@ RUN npm run build
 
 # Поднимаем нжинкс
 FROM nginx:alpine
-COPY --from=build /app/build /usr/share/nginx/html
+
+# Copy the build output from the React app
+COPY ./build /usr/share/nginx/html
+
+# Copy the Nginx configuration file
+COPY ./nginx.conf /etc/nginx/conf.d/default.conf
 
 # Сетапим 80 порт
 EXPOSE 80
