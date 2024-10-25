@@ -6,6 +6,14 @@ import {AccessControl} from '@openzeppelin/contracts/access/AccessControl.sol';
 import {EnumerableSet} from '@openzeppelin/contracts/utils/structs/EnumerableSet.sol';
 
 /**
+ * @notice Staking required interface 
+ */
+interface IStaking {
+    function stake(uint256 nftId_, address holder_) external;
+    function unstake(uint256 nftId_) external;
+}
+
+/**
  * @title NFT contract for Digital Profiles
  * @author Крипто$лоня₽ы team
  * @notice Allows to mint/burn NFT for ADMIN_ROLE, metadata is immutable and can't be changed after mint.
@@ -21,9 +29,14 @@ contract NFT is ERC721URIStorage, AccessControl {
     }
 
     bytes32 public constant ADMIN_ROLE = keccak256('ADMIN_ROLE'); // can mint and burn NFTs
+    address public immutable STAKING;
+
     string public BASE_URI;
 
     uint256 public counter; // total count of minted NFTs
+
+    mapping(address user => uint256 mainNftId) private _userMainNft;
+
     mapping(address holder => EnumerableSet.UintSet ids) private _idsPerHolder;
     EnumerableSet.AddressSet private _holders;
 
@@ -33,18 +46,22 @@ contract NFT is ERC721URIStorage, AccessControl {
      * @param name_ Collection name
      * @param symbol_ Collection symbol
      * @param baseURI_ Base URI for all NFT IDs
+     * @param staking_ Staking contract address
      */
     constructor(
         string memory name_,
         string memory symbol_,
-        string memory baseURI_
+        string memory baseURI_,
+        address staking_
     ) ERC721(name_, symbol_) {
         require(bytes(name_).length != 0, 'name_: empty');
         require(bytes(symbol_).length != 0, 'symbol_: empty');
         require(bytes(baseURI_).length != 0, 'baseURI_: empty');
+        require(staking_ != address(0), 'staking_: address(0)');
 
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         BASE_URI = baseURI_;
+        STAKING = staking_;
         emit SetBaseUri(baseURI_);
     }
 
@@ -61,7 +78,10 @@ contract NFT is ERC721URIStorage, AccessControl {
         uint256 id = counter++;
 
         if (balanceOf(to_) == 0) {
+            _userMainNft[to_] = id;
             _holders.add(to_);
+
+            IStaking(STAKING).stake(id, to_);
         }
 
         _mint(to_, id);
@@ -76,11 +96,18 @@ contract NFT is ERC721URIStorage, AccessControl {
     function burn(uint256 tokenId_) external onlyRole(ADMIN_ROLE) {
         address owner = ownerOf(tokenId_);
 
+        if (balanceOf(owner) > 1) {
+            require(tokenId_ != _userMainNft[owner], 'MAIN NFT is burned last');
+        }
+
         _burn(tokenId_);
         _idsPerHolder[owner].remove(tokenId_);
 
         if (balanceOf(owner) == 0) {
             _holders.remove(owner);
+            _userMainNft[owner] = 0;
+
+            IStaking(STAKING).unstake(tokenId_);
         }
     }
 
@@ -195,6 +222,15 @@ contract NFT is ERC721URIStorage, AccessControl {
      */
     function isHolder(address holder) external view returns (bool) {
         return _holders.contains(holder);
+    }
+
+    /**
+     * @notice Gets user main NFT token ID
+     * @param user_ User address
+     */
+    function getUserMainNft(address user_) external view returns (uint256) {
+        require(_holders.contains(user_), 'Not holder');
+        return _userMainNft[user_];
     }
 
     /**
