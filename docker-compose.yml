@@ -26,6 +26,9 @@ services:
       - PORT=${PORT}
       - IS_DOCKER_RUN=${IS_DOCKER_RUN}
       - REACT_APP_BACKEND_BASE_URL=${REACT_APP_BACKEND_BASE_URL}
+      - TG_ALERTING_URL=${TG_ALERTING_URL}
+      - TG_CHAT_ID=${TG_CHAT_ID}
+      - PRIVATE_KEY_BACKEND=${PRIVATE_KEY_BACKEND}
     build:
       context: ./backend
       dockerfile: Dockerfile

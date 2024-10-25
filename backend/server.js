@@ -9,6 +9,7 @@ require('dotenv').config()
 const app = express()
 const { ObjectId } = require('mongodb')
 const axios = require('axios')
+const { File } = require('@web-std/file')
 
 const CHAIN_ID = 97
 const DID_PREFIX = `did:ethr:${CHAIN_ID}:`
@@ -428,6 +429,8 @@ app.post('/api/createMainVC', async (req, res) => {
   try {
     ipfsHash = await signMetadataAndSendToIpfs(metadata)
   } catch (error) {
+    console.log('Ipfs error', error)
+
     res.status(500).json({ message: 'IPFS error' })
     return
   }
@@ -486,6 +489,8 @@ app.post('/api/createCertificateVC', async (req, res) => {
   try {
     ipfsHash = await signMetadataAndSendToIpfs(metadata)
   } catch (error) {
+    console.log('Ipfs error', error)
+
     res.status(500).json({ message: 'IPFS error' })
     return
   }
@@ -671,6 +676,7 @@ app.post('/api/createReviewVC', async (req, res) => {
   try {
     ipfsHash = await signMetadataAndSendToIpfs(metadata)
   } catch (error) {
+    console.log('Ipfs error', error)
     res.status(500).json({ message: 'IPFS error' })
     return
   }

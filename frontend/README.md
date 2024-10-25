@@ -29,3 +29,12 @@ yarn start
 ```
 
 An example of `.env` will be attached to the disk.
+
+## Архитектура проекта
+
+```
+App.tsx - входная точка в проект
+utils - утилиты
+contacts - функции для взаимодействия с контрактами
+AppContext - стейт менеджмент
+```
