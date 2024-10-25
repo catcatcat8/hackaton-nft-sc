@@ -8,6 +8,7 @@ const { PinataSDK } = require('pinata-web3')
 require('dotenv').config()
 const app = express()
 const { ObjectId } = require('mongodb')
+const axios = require('axios')
 
 const CHAIN_ID = 97
 const DID_PREFIX = `did:ethr:${CHAIN_ID}:`
@@ -63,7 +64,7 @@ const NFT_TYPES = {
   review: 'REVIEW',
 }
 
-const NFT_ADDR = '0x225774cB32E49bceA6Ac1F44F86cCE87ACd241b6'
+const NFT_ADDR = '0x6ec6e3Ec075267c442aD6A8922B9128aF4C67d5F'
 const AUTH_PREFIX = `auth:ethr:${CHAIN_ID}:${NFT_ADDR.toLowerCase()}:`
 
 const abi = ['function counter() public view returns (uint256)']
@@ -74,6 +75,20 @@ let mainClient
 let reviewsQueue
 let certificatesQueue
 let usersInfo
+
+const TG_URL = process.env.TG_ALERTING_URL
+const TG_CHAT_ID = process.env.TG_CHAT_ID
+
+async function telegramInfo(...msg) {
+  console.log(msg)
+  await telegramAlert(TG_URL, TG_CHAT_ID, 'INFO:\n' + msg.join(' '))
+}
+
+async function telegramAlert(url, chatId, msg) {
+  await axios.get(url, {
+    params: { chat_id: chatId, text: msg },
+  })
+}
 
 async function connectToDB() {
   try {
@@ -151,6 +166,10 @@ async function signMetadataAndSendToIpfs(metadata) {
   return upload.IpfsHash
 }
 
+function unixToDate(unixTs) {
+  return new Date(unixTs * 1000).toLocaleDateString('en-US')
+}
+
 app.post('/api/insertReview', async (req, res) => {
   const { reviewFrom, reviewTo, reviewText, reviewType } = req.body
 
@@ -167,6 +186,33 @@ app.post('/api/insertReview', async (req, res) => {
     res.status(500).json({ message: 'MongoDB reviews insert error' })
     return
   }
+
+  const userFromInfo = await usersInfo.findOne({
+    address: reviewFrom.toLowerCase(),
+  })
+  const userToInfo = await usersInfo.findOne({
+    address: reviewTo.toLowerCase(),
+  })
+
+  try {
+    let reviewTypeText = 'Neutral'
+    switch (reviewType) {
+      case 0:
+        reviewTypeText = 'Positive'
+        break
+      case 1:
+        reviewTypeText = 'Neutral'
+        break
+      case 2:
+        reviewTypeText = 'Negative'
+        break
+      default:
+        break
+    }
+    telegramInfo(
+      `🗨️🗨️🗨️ Add review request\n\n\nFrom: ${userFromInfo.fullName}\n(${reviewFrom})\n\nTo: ${userToInfo.fullName}\n(${reviewTo})\n\nText: ${reviewText}\n\nType: ${reviewTypeText}`
+    )
+  } catch (error) {}
 
   res.status(200).json({
     message: 'Review inserted to queue successfully',
@@ -190,6 +236,20 @@ app.post('/api/insertCertificate', async (req, res) => {
     res.status(500).json({ message: 'MongoDB certificates insert error' })
     return
   }
+
+  const userInfo = await usersInfo.findOne({
+    address: workerAddr.toLowerCase(),
+  })
+
+  try {
+    telegramInfo(
+      `📖📖📖 Add certificate request\n\n\nFrom: ${
+        userInfo.fullName
+      }\n\nWallet address: ${workerAddr}\n\nImage: ${imageLink}\n\nCertificate ID: ${certificateId}\n\nReceipt date: ${unixToDate(
+        receiptDate
+      )}`
+    )
+  } catch (error) {}
 
   res.status(200).json({
     message: 'Certificate inserted to queue successfully',
