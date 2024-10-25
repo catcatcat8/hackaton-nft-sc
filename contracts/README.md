@@ -1,4 +1,4 @@
-# NFT SC
+# NFT SC & Staking
 
 ## Getting started
 
@@ -83,24 +83,37 @@ Deployments are stored in the `./deployments` folder.
 ## Tests coverage
 
 ```
-  NFT tests
-    ✔ Constructor + setup should work correctly (142ms)
-    ✔ Constructor should revert (71ms)
-    ✔ Should correctly create new NFTs (231ms)
-    ✔ Should correctly burn NFTs (223ms)
-    ✔ Should correctly change base URI (167ms)
-    ✔ Should not allow to transfer NFT (77ms)
-    ✔ Should correctly supports interface (68ms)
+  NFT & Staking tests
+    ✔ Constructor + setup should work correctly (110ms)
+    ✔ Constructor should revert (115ms)
+    ✔ Should correctly create new NFTs (197ms)
+    ✔ Should correctly burn NFTs (222ms)
+    ✔ Should correctly change base URI (160ms)
+    ✔ Should not allow to transfer NFT (75ms)
+    ✔ Should correctly supports interface (75ms)
+    ✔ Should correctly mint reward tokens through staking (120ms)
+
+  Reward token additional tests
+    ✔ Constructor + setup should work correctly (110ms)
+    ✔ Constructor should revert (101ms)
+    ✔ Mint from not staking should revert (78ms)
+
+  Staking additional tests
+    ✔ Constructor + setup should work correctly (89ms)
+    ✔ Constructor should revert (75ms)
+    ✔ Stake/Unstake from not NFT should revert (66ms)
 
 
-  7 passing (986ms)
+  14 passing (2s)
 
-------------|----------|----------|----------|----------|----------------|
-File        |  % Stmts | % Branch |  % Funcs |  % Lines |Uncovered Lines |
-------------|----------|----------|----------|----------|----------------|
- contracts/ |      100 |      100 |      100 |      100 |                |
-  NFT.sol   |      100 |      100 |      100 |      100 |                |
-------------|----------|----------|----------|----------|----------------|
-All files   |      100 |      100 |      100 |      100 |                |
-------------|----------|----------|----------|----------|----------------|
+------------------|----------|----------|----------|----------|----------------|
+File              |  % Stmts | % Branch |  % Funcs |  % Lines |Uncovered Lines |
+------------------|----------|----------|----------|----------|----------------|
+ contracts/       |      100 |      100 |      100 |      100 |                |
+  NFT.sol         |      100 |      100 |      100 |      100 |                |
+  RewardToken.sol |      100 |      100 |      100 |      100 |                |
+  Staking.sol     |      100 |      100 |      100 |      100 |                |
+------------------|----------|----------|----------|----------|----------------|
+All files         |      100 |      100 |      100 |      100 |                |
+------------------|----------|----------|----------|----------|----------------|
 ```
