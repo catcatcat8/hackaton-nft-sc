@@ -19,6 +19,7 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import { DATA, UserProfile } from '../types'
 import { handleCopyToClipboard } from '../utils'
 import { IPFS_BASE_LINK } from '../constants'
+import QrCodeGenerator from '../components/QrCodeGenerator'
 
 const userProfile: UserProfile = {
   fullName: 'Loading...',
@@ -30,7 +31,6 @@ const userProfile: UserProfile = {
 
 const UserProfilePage: React.FC = () => {
   const { myNftData: data, myMainNft, isAdmin } = useAppContext()
-
 
   return (
     <Box sx={{ maxWidth: '800px', margin: '0 auto', padding: '24px' }}>
@@ -82,7 +82,8 @@ const UserProfilePage: React.FC = () => {
               {/* Job Title */}
               <Grid item xs={12} md={6}>
                 <Typography variant="subtitle1" gutterBottom>
-                  Должность                </Typography>
+                  Должность{' '}
+                </Typography>
                 <Typography variant="body1">
                   {myMainNft?.jobTitle ?? userProfile.jobTitle}
                 </Typography>
@@ -112,6 +113,8 @@ const UserProfilePage: React.FC = () => {
         </>
       )}
 
+      <QrCodeGenerator />
+
       <Box sx={{ marginTop: '40px', textAlign: 'left' }}>
         <Typography variant="h5" gutterBottom>
           Результат
@@ -134,9 +137,7 @@ const UserProfilePage: React.FC = () => {
                         <Button
                           variant="outlined"
                           startIcon={<ContentCopyIcon />}
-                          onClick={() =>
-                            handleCopyToClipboard( item.bigId)
-                          }
+                          onClick={() => handleCopyToClipboard(item.bigId)}
                           sx={{ marginTop: '8px' }}
                         >
                           IPFS
@@ -173,9 +174,7 @@ const UserProfilePage: React.FC = () => {
                         <Button
                           variant="outlined"
                           startIcon={<ContentCopyIcon />}
-                          onClick={() =>
-                            handleCopyToClipboard(item.bigId)
-                          }
+                          onClick={() => handleCopyToClipboard(item.bigId)}
                           sx={{ marginTop: '8px' }}
                         >
                           IPFS
@@ -194,12 +193,11 @@ const UserProfilePage: React.FC = () => {
                         <Button
                           variant="outlined"
                           startIcon={<ContentCopyIcon />}
-                          onClick={() =>{
+                          onClick={() => {
                             if (item?.imageCert) {
-                              window.open(item?.imageCert, '_blank')?.focus() 
+                              window.open(item?.imageCert, '_blank')?.focus()
                             }
-                           }
-                          }
+                          }}
                           sx={{ marginTop: '8px' }}
                         >
                           Открыть сертификат
