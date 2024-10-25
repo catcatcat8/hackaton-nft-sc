@@ -22,4 +22,4 @@ Contracts are deployed to the BNB Chain testnet network.
 
 1. Для начала нужно подготовить .env файлы
    Для папки backend и frontend , эти файлы будут лежать на диске
-2. Проследовать по пунктам из Docs
+2. Проследовать по пунктам из Docs (контракты задеплоены на BSC Testnet, их заново деплоить не нужно)
